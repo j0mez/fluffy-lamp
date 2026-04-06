@@ -183,13 +183,19 @@ SECTION_TITLES = [s["title"] for s in SECTIONS]
 NAV_OPTIONS = [
     "🏠 Home",
     "📊 About the Data",
+    "⚖️ Ethics and Positionality",
     "🔬 Methods and Disciplines",
+    "📖 Language and Psychological State",
+    "🔴 Depression and Suicidal Ideation",
+    "🛠️ Building the App",
     "🔍 Analyse Text",
     "⚖️ Compare Texts",
     "📚 Research Findings",
     "🔭 Synthesis",
     "🚀 Future Development",
     "⚠️ Limitations",
+     "📖 Glossary",
+    "📚 References",
 ]
 
 # ============================================================
@@ -467,8 +473,8 @@ def prev_next_buttons(current_idx):
 if "research_nav" not in st.session_state:
     st.session_state["research_nav"] = 0
 
-if "active_tab" not in st.session_state:
-    st.session_state["active_tab"] = "🏠 Home"
+if "nav_target" not in st.session_state:
+    st.session_state["nav_target"] = None
 
 # ============================================================
 # SIDEBAR
@@ -477,14 +483,17 @@ if "active_tab" not in st.session_state:
 st.sidebar.title("🧠 MH Discourse Analyser")
 st.sidebar.divider()
 
+if st.session_state["nav_target"] is not None:
+    target = st.session_state["nav_target"]
+    st.session_state["nav_target"] = None
+    st.session_state["nav_radio"] = target
+
 active_tab = st.sidebar.radio(
     "Navigation",
     NAV_OPTIONS,
-    index=NAV_OPTIONS.index(st.session_state["active_tab"]),
-    label_visibility="collapsed"
+    label_visibility="collapsed",
+    key="nav_radio"
 )
-
-st.session_state["active_tab"] = active_tab
 
 st.sidebar.divider()
 
@@ -617,7 +626,7 @@ if active_tab == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
         if st.button("Go to About the Data", use_container_width=True, key="nav_data"):
-            st.session_state["active_tab"] = "📊 About the Data"
+            st.session_state["nav_target"] = "📊 About the Data"
             st.rerun()
 
     with g2:
@@ -632,7 +641,7 @@ if active_tab == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
         if st.button("Go to Methods", use_container_width=True, key="nav_methods"):
-            st.session_state["active_tab"] = "🔬 Methods and Disciplines"
+            st.session_state["nav_target"] = "🔬 Methods and Disciplines"
             st.rerun()
 
     with g3:
@@ -647,7 +656,7 @@ if active_tab == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
         if st.button("Go to Research Findings", use_container_width=True, key="nav_findings"):
-            st.session_state["active_tab"] = "📚 Research Findings"
+            st.session_state["nav_target"] = "📚 Research Findings"
             st.rerun()
 
     with g4:
@@ -662,7 +671,7 @@ if active_tab == "🏠 Home":
         </div>
         """, unsafe_allow_html=True)
         if st.button("Go to Limitations", use_container_width=True, key="nav_limits"):
-            st.session_state["active_tab"] = "⚠️ Limitations"
+            st.session_state["nav_target"] = "⚠️ Limitations"
             st.rerun()
 
     st.divider()
@@ -2072,6 +2081,1349 @@ elif active_tab == "⚠️ Limitations":
         what computational methods can reveal about language at scale, to show where those
         methods reach their limits, and to be transparent about what those limits mean.
         Knowing what NLP cannot do is as important as knowing what it can.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ============================================================
+# VIEW: BUILDING THE APP
+# ============================================================
+
+elif active_tab == "🛠️ Building the App":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Building the App</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        The decisions, problems, and trade-offs behind this tool — what was built,
+        what broke, what changed, and why.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- Why Streamlit ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #4A90D9;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Why Streamlit?</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The first decision was the framework. The main alternatives were Streamlit, Dash,
+    and a static HTML/JavaScript site. Dash offers more precise layout control and
+    richer callback architecture — useful for complex interactive dashboards where one
+    chart needs to update based on another. A static site would have been the most
+    portable but would have required reimplementing the classifiers in JavaScript or
+    calling an external API.
+
+    Streamlit was chosen for three reasons. First, the classifiers and embedding model
+    are Python objects — keeping everything in one Python process eliminates an entire
+    layer of complexity. Second, Streamlit Community Cloud provides one-click deployment
+    from a GitHub repository, which means the app is publicly accessible without
+    configuring a server. Third, the development cycle is fast — a change to the Python
+    file is visible in the browser within seconds, which matters when iterating on
+    layout and content simultaneously.
+
+    The trade-off is that Streamlit gives less control over layout than Dash. The
+    workaround — using raw HTML and inline CSS inside `st.markdown()` with
+    `unsafe_allow_html=True` — is not ideal but produces a more polished result than
+    Streamlit's native components alone.
+    """)
+
+    st.divider()
+
+    # ---- The BERTopic problem ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The BERTopic Incompatibility Problem</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The most significant technical problem encountered during development was a
+    dependency conflict that made it impossible to run BERTopic live inside the app.
+
+    BERTopic requires specific versions of spaCy and pydantic that are incompatible
+    with Python 3.12. The conflict manifests as a silent failure — the import succeeds
+    but model fitting raises an obscure internal error. Downgrading Python was not a
+    viable option because sentence-transformers and other dependencies had their own
+    version requirements pointing in the opposite direction.
+
+    The solution was to decouple BERTopic entirely from the app. The topic model was
+    fitted once in the notebook, and two output files were serialised to JSON:
+
+    - `topic_centroids.json` — the mean embedding vector for each topic cluster
+    - `topic_labels.json` — the top terms and human-readable label for each topic
+
+    At runtime, the app computes the cosine similarity between an input text's embedding
+    and each topic centroid, and assigns the nearest topic. This nearest-centroid approach
+    produces identical results to BERTopic's own transform() method for the vast majority
+    of inputs, requires no BERTopic dependency, and runs in milliseconds rather than
+    seconds.
+
+    The lesson: when a dependency conflict is intractable, the right response is to
+    move the expensive computation offline and cache the outputs rather than fighting
+    the environment.
+    """)
+
+    st.divider()
+
+    # ---- Architecture decisions ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #5CB85C;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Key Architecture Decisions</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    arch1, arch2 = st.columns(2)
+
+    with arch1:
+        st.markdown("""
+        <div style='background-color:#F8F9FA;padding:18px;border-radius:6px;
+                    border-top:3px solid #5CB85C;margin-bottom:14px'>
+          <h4 style='margin:0 0 10px 0;color:#2C3E50'>The SECTIONS data structure</h4>
+          <p style='color:#444;font-size:0.88em;line-height:1.6;margin:0'>
+            All 13 research findings sections are defined as a single list of
+            dictionaries at the top of the file. Each dictionary contains the section
+            title, heading, method description, accent colour, key finding teaser, and
+            plain English summary. This means the sidebar key finding teaser, the section
+            heading card, the plain English callout, and the section counter all update
+            automatically when the user navigates — none of them require manual updates
+            if the content changes. It also makes the structure of the app readable at
+            a glance from the top of the file.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div style='background-color:#F8F9FA;padding:18px;border-radius:6px;
+                    border-top:3px solid #5CB85C;margin-bottom:14px'>
+          <h4 style='margin:0 0 10px 0;color:#2C3E50'>Session state navigation</h4>
+          <p style='color:#444;font-size:0.88em;line-height:1.6;margin:0'>
+            Streamlit reruns the entire script on every interaction. Navigation state —
+            which tab is active, which research section is open — must be stored in
+            st.session_state to persist across reruns. The active_tab and research_nav
+            variables are both stored in session state, which means the homepage
+            navigation cards, the sidebar radio button, and the prev/next buttons in
+            Research Findings all write to the same state and stay in sync. This took
+            several iterations to get right — early versions had the sidebar and the
+            buttons fighting each other.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with arch2:
+        st.markdown("""
+        <div style='background-color:#F8F9FA;padding:18px;border-radius:6px;
+                    border-top:3px solid #4A90D9;margin-bottom:14px'>
+          <h4 style='margin:0 0 10px 0;color:#2C3E50'>Helper functions</h4>
+          <p style='color:#444;font-size:0.88em;line-height:1.6;margin:0'>
+            Four UI components appear repeatedly across the app: section heading cards,
+            plain English callouts, big stat callouts, and the headline banner in the
+            Analyse tab. Each is implemented as a single function — section_heading(),
+            plain_english(), big_stat(), and headline_banner(). This means the visual
+            style of these components is defined in one place and consistent everywhere.
+            When the colour scheme or padding was adjusted during development, it changed
+            everywhere simultaneously rather than requiring manual edits across 13 sections.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <div style='background-color:#F8F9FA;padding:18px;border-radius:6px;
+                    border-top:3px solid #9B59B6;margin-bottom:14px'>
+          <h4 style='margin:0 0 10px 0;color:#2C3E50'>Cached model loading</h4>
+          <p style='color:#444;font-size:0.88em;line-height:1.6;margin:0'>
+            Loading the sentence transformer model takes several seconds on first run.
+            Without caching, this would happen on every rerun — every button click,
+            every navigation. The @st.cache_resource decorator loads each model once
+            per session and caches it in memory. The embedding model, both classifiers,
+            the VAD lexicon, and the topic data are all cached this way. After the
+            first load, analysis runs in under a second.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ---- Design iterations ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>How the Design Evolved</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The app went through three distinct phases of development.
+
+    **Phase 1 — Proof of concept:** A single page with a text input, a classify button,
+    and raw probability outputs displayed as a table. No styling, no sections, no
+    longitudinal content. The goal was to confirm that the classifiers and embedding
+    model loaded correctly and produced sensible outputs for example texts.
+
+    **Phase 2 — Content expansion:** The research findings were added as a long
+    scrolling page with static images and text. This established the content structure
+    but was visually flat and difficult to navigate. The key problem was that the
+    longitudinal charts and the interactive UMAP were buried at the bottom of a page
+    that required significant scrolling to reach. Users — including markers — would
+    not see the most important findings.
+
+    **Phase 3 — Navigation and visual architecture:** The sidebar navigation, the
+    SECTIONS data structure, the prev/next buttons, the collapsible section headings,
+    the big stat callouts, and the colour-coded accent system were all added in this
+    phase. The homepage was added last, after the content was finalised, to give the
+    tool a clear entry point and orient first-time users.
+
+    The most significant single design decision in Phase 3 was separating the
+    Limitations and Synthesis content from the Research Findings tab into their own
+    sidebar entries. Originally both were sections 13 and 14 within Research Findings.
+    Giving them dedicated pages makes them directly accessible to a marker evaluating
+    critical reflection — they do not have to navigate through 12 prior sections to
+    reach the most intellectually substantial content.
+    """)
+
+    st.divider()
+
+    # ---- The annotation connection ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>How the Annotation Exercise Shaped the App</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    A separate component of this project involved manually annotating 30 Reddit posts
+    for help-seeking vs help-providing orientation using a five-category coding scheme.
+    This was initially conceived as an independent exercise with no connection to the
+    app.
+
+    During annotation, three posts resisted classification using the original four-category
+    scheme — a poem, a single-sentence validation question, and a post that simultaneously
+    sought and offered support. A fifth boundary category (HS/V) was added to the scheme
+    mid-process to accommodate these cases.
+
+    The connection to the computational analysis became clear only after both were
+    complete. The annotation exercise demonstrated empirically that even a human annotator
+    with a clear coding scheme and deliberate attention encounters genuine ambiguity in
+    mental health posts — ambiguity that cannot be resolved by applying the scheme more
+    carefully. This is exactly the same phenomenon the classifier encounters at the
+    depression/SuicideWatch boundary.
+
+    This connection — between human annotation difficulty and machine classification
+    difficulty — became one of the central arguments in the Limitations page. The
+    annotation evidence is not just a methodological note; it is direct evidence that
+    the ambiguity is in the posts themselves rather than in the inadequacy of the
+    computational method. Including it in the app required no additional code — the
+    three hard cases were described in prose — but it substantially strengthened the
+    critical reflection argument.
+    """)
+
+    st.divider()
+
+    # ---- What I would do differently ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What I Would Do Differently</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    **Start with the data structure.** The SECTIONS list at the top of the file was
+    added late in development. If it had been designed first, the entire Research
+    Findings section would have been cleaner and faster to build. The lesson is to
+    design the data model before writing any rendering code.
+
+    **Separate the notebook from the app earlier.** The notebook and the app shared
+    assumptions about file paths and output formats that caused problems when either
+    was changed. A cleaner approach would have been to define a fixed set of output
+    files — with documented formats — at the start of the project and treat the notebook
+    as a pipeline that produces those files and the app as a consumer that reads them.
+
+    **Version control from day one.** The app was developed locally without a Git
+    repository until late in the process. Several earlier versions of the code were
+    lost when files were overwritten during debugging. A commit history would have made
+    it possible to recover earlier working versions and to understand what changed
+    between sessions.
+
+    **Test on a clean environment earlier.** The BERTopic incompatibility was discovered
+    late because development happened in the same environment where BERTopic was already
+    installed from the notebook work. Testing the app in a fresh virtual environment
+    earlier would have surfaced the conflict sooner and allowed more time to design
+    the centroid solution properly.
+
+    **Add the process page from the start.** The decisions documented here were made
+    incrementally and some of the reasoning is reconstructed from memory. A development
+    log kept during the project would have produced a more accurate and detailed account.
+    """)
+
+    st.divider()
+
+    # ---- Closing ----
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
+      <h2 style='color:white;margin:0 0 14px 0'>What This Process Demonstrates</h2>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        Building a research tool is a different kind of intellectual work from writing
+        a research paper. A paper requires you to argue a position clearly. A tool
+        requires you to make hundreds of small decisions — about architecture, about
+        design, about what to show and what to hide — each of which embeds an assumption
+        about what the user needs to understand.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        The most important decisions in this project were not technical. They were
+        intellectual: separating Limitations into its own page signals that critical
+        reflection deserves prominence, not an afterthought position at the bottom of
+        a long scroll. Giving the depression/SuicideWatch finding its own section signals
+        that this is the centre of the analysis, not one result among many. Connecting
+        the annotation exercise to the classifier findings signals that the ambiguity
+        is in the data, not the method.
+      </p>
+      <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
+        Every design decision is an argument. The structure of this app is an argument
+        about what matters in NLP research on mental health discourse — and about the
+        responsibility that comes with applying these methods to sensitive human data.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ============================================================
+# VIEW: LANGUAGE AND PSYCHOLOGICAL STATE
+# ============================================================
+
+elif active_tab == "📖 Language and Psychological State":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Language and Psychological State</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        Situating the pronoun findings within clinical psycholinguistics — and what
+        four years of stability adds to an established body of evidence.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- The Pennebaker programme ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Pennebaker Research Programme</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    James Pennebaker's research programme, developed across three decades, established
+    that the function words people use — particularly first-person singular pronouns —
+    are more revealing of psychological state than the content words that speakers and
+    writers consciously attend to. His central finding, replicated across clinical
+    interviews, written disclosures, and social media data, is that people in depressive
+    states use significantly more first-person singular pronouns (I, me, my, myself)
+    than healthy controls (Pennebaker, 2011).
+
+    The theoretical explanation draws on attentional models of depression. Depressive
+    states are characterised by excessive self-focused attention — a narrowing of
+    cognitive resources toward the self and away from the external world. First-person
+    pronoun frequency operationalises this attentional bias computationally: it is not
+    that depressed people consciously choose to talk about themselves more, but that
+    the grammar of their language reflects an inward orientation they may not be
+    aware of.
+
+    This is a significant methodological claim. It suggests that psychological states
+    leave measurable traces in linguistic choices that are largely automatic and below
+    conscious control. If true, it means that text analysis can reveal something about
+    a person's psychological state that even careful self-report might miss.
+    """)
+
+    st.divider()
+
+    # ---- Replications and extensions ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Replications, Extensions, and Challenges</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The pronoun finding has been replicated across multiple contexts. Rude et al. (2004)
+    found elevated first-person singular pronoun use in the written work of currently
+    depressed and previously depressed individuals compared to never-depressed controls,
+    even when depression was not the topic of writing. Stirman and Pennebaker (2001)
+    extended the finding to poetry, demonstrating that poets who later died by suicide
+    used significantly more first-person singular pronouns and fewer first-person plural
+    pronouns than poets who did not. The shift from collective to individual reference
+    was interpreted as evidence of social withdrawal and increasing self-focus in the
+    period preceding suicide.
+
+    Social media extensions have produced more mixed results. Coppersmith et al. (2014)
+    applied Pennebaker's LIWC framework to Twitter data from users who had disclosed
+    mental health diagnoses, finding elevated first-person pronoun use in depression
+    and PTSD but weaker effects for other conditions. Tadesse et al. (2019) replicated
+    the pronoun finding in Reddit depression data, consistent with the results presented
+    in this analysis.
+
+    The most significant challenge to the Pennebaker programme comes from De Choudhury
+    et al. (2013), who found that while first-person pronoun frequency correlates with
+    depression severity at the individual level, community-level effects on Reddit are
+    confounded by platform norms. Different subreddits develop different conventions
+    for how personal disclosure is performed — conventions that may inflate or deflate
+    pronoun rates independently of the psychological state of individual users. This is
+    a direct methodological concern for the analysis presented here.
+    """)
+
+    st.divider()
+
+    # ---- What this analysis contributes ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #4A90D9;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What This Analysis Contributes</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    big_stat(
+        "0.4%",
+        "Change in the pronoun hierarchy across four years — SuicideWatch highest, Anxiety lowest in 2019 and 2022",
+        "#E8A838"
+    )
+
+    st.markdown("""
+    The most significant contribution of this analysis to the Pennebaker literature is
+    the temporal stability finding. The community ranking on first-person pronoun rate
+    — r/SuicideWatch highest at 0.1276, followed by r/depression at 0.1188,
+    r/mentalhealth at 0.1087, r/lonely at 0.1044, and r/Anxiety lowest at 0.1028 —
+    is identical in April 2019 and April 2022.
+
+    This matters for two reasons. First, it addresses De Choudhury et al.'s concern
+    about platform norm confounds. If the elevated pronoun rates in r/SuicideWatch and
+    r/depression were primarily a product of community discourse conventions rather than
+    individual psychological state, we would expect those conventions to shift across
+    the pandemic period as communities grew and new users arrived. r/lonely grew 339.7%
+    between 2019 and 2022, bringing a substantially different user base. If platform
+    norms were driving the pronoun effect, r/lonely's pronoun rate should have shifted
+    considerably. It did not. The hierarchy is stable, which is evidence that the effect
+    reflects something more stable than community convention.
+
+    Second, the stability finding extends Pennebaker's clinical prediction across a
+    period of significant real-world disruption. The COVID-19 pandemic produced
+    measurable changes in the surface vocabulary and thematic content of all five
+    communities. Valence dipped across all communities in April 2020. Crisis language
+    grew from 9.0% to 13.3% of posts between 2019 and 2021. These are genuine
+    pandemic-period shifts at the thematic level. The pronoun hierarchy did not move.
+    This suggests that self-focused attention — as operationalised by first-person
+    pronoun frequency — is a structural property of how these communities use language,
+    not a response to external circumstances.
+    """)
+
+    st.divider()
+
+    # ---- The SuicideWatch finding ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The SuicideWatch Result and Stirman and Pennebaker</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The finding that r/SuicideWatch has the highest first-person pronoun rate in the
+    dataset is consistent with Stirman and Pennebaker's (2001) poetry study, which
+    found elevated first-person singular pronoun use in the work of poets who later
+    died by suicide. Both findings point in the same direction: the linguistic signature
+    of suicidal ideation includes heightened self-focus, measurable through pronoun
+    frequency, that exceeds the self-focus present in depressive discourse more generally.
+
+    This is a nuanced result. The embedding similarity analysis shows that r/depression
+    and r/SuicideWatch are semantically nearly identical at 0.954 — no method
+    successfully separates them at the level of meaning. But the Pennebaker analysis
+    does reveal a difference at the level of self-focus: r/SuicideWatch's pronoun rate
+    is 7.5% higher than r/depression's. This is a small but consistent difference that
+    has been stable across four years.
+
+    The implication is that while the semantic content of depressive and suicidal
+    discourse is nearly indistinguishable, the grammatical orientation of suicidal
+    discourse is measurably more self-focused. This is consistent with the clinical
+    picture of suicidal crisis as a state of extreme psychological constriction — a
+    narrowing of attention to the self and away from external relationships and
+    possibilities that goes beyond the self-focus characteristic of depression alone.
+    """)
+
+    st.divider()
+
+    # ---- The Anxiety anomaly ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Anxiety Anomaly</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The finding that r/Anxiety has the lowest first-person pronoun rate in the dataset
+    appears to contradict the Pennebaker framework, which predicts elevated pronoun use
+    in psychological distress. r/Anxiety is clearly a community experiencing significant
+    distress — its VAD arousal score is the highest in the dataset and its TF-IDF
+    vocabulary is dominated by somatic and pharmacological terms reflecting acute
+    physiological experience. Yet its pronoun rate is lower than r/mentalhealth, which
+    functions primarily as an information and discussion community.
+
+    There are two possible explanations. The first is that anxiety, unlike depression,
+    is characterised by external rather than internal attentional focus. Anxiety directs
+    attention toward perceived threats in the environment — somatic symptoms, triggers,
+    social situations — rather than toward the self. The grammar of anxiety discourse
+    may therefore be less self-referential not because the speaker is less distressed
+    but because their attention is oriented outward rather than inward. This would be
+    consistent with attentional models of anxiety, which distinguish anxious hypervigilance
+    to external threat from the ruminative self-focus characteristic of depression
+    (Wells, 2009).
+
+    The second explanation is that r/Anxiety's discourse is more frequently framed
+    as questions and requests for information — "does anyone else get this?", "what
+    medication helps with palpitations?" — which may reduce first-person pronoun
+    density relative to the extended personal narratives more common in r/depression
+    and r/SuicideWatch. Both explanations are plausible and the data cannot distinguish
+    between them. This is an honest limitation of the pronoun frequency measure as a
+    proxy for psychological self-focus.
+    """)
+
+    st.divider()
+
+    # ---- Implications ----
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
+      <h2 style='color:white;margin:0 0 14px 0'>Implications for NLP in Mental Health</h2>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        The Pennebaker findings in this analysis support three conclusions for NLP
+        researchers working on mental health text.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        First, first-person pronoun frequency is a temporally stable signal in mental
+        health communities. A monitoring system built on this feature would not require
+        recalibration as community vocabulary evolves. This is a practical advantage
+        over lexical approaches that degrade as platform language shifts.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        Second, pronoun frequency alone is insufficient to distinguish between
+        communities. The difference between r/SuicideWatch and r/depression is 7.5%
+        — statistically meaningful but clinically insufficient as a sole triage signal.
+        It is most useful as one feature among many in a multi-signal system rather
+        than as a standalone classifier.
+      </p>
+      <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
+        Third, the Anxiety anomaly is a warning against applying the Pennebaker
+        framework uniformly across mental health conditions. The relationship between
+        psychological distress and self-focused language is not uniform — it varies
+        by condition in ways that reflect genuine differences in attentional orientation.
+        NLP systems that treat first-person pronoun frequency as a generic distress
+        marker without accounting for condition-specific patterns will produce
+        systematically misleading results for anxiety-related content.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ============================================================
+# VIEW: ETHICS AND POSITIONALITY
+# ============================================================
+
+elif active_tab == "⚖️ Ethics and Positionality":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Ethics and Positionality</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        The ethical questions raised by computational research on mental health
+        discourse — and an honest account of where this analysis sits within them.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- The publicness problem ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #4A90D9;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Publicness Problem</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The foundational ethical tension in social media research is the gap between
+    data being technically public and data being ethically available for research use.
+    Reddit posts are publicly accessible by default — anyone with an internet connection
+    can read them. This has led many researchers to treat Reddit data as equivalent to
+    published text, requiring no more ethical consideration than analysing a newspaper.
+
+    This position has been contested on several grounds. Zimmer (2010) argued that
+    the technical publicness of online data does not resolve the ethical question of
+    whether users consented to research use — a distinction he frames as the difference
+    between data being public and data being fair game. Users who post in mental health
+    communities do so in a context of perceived audience: they are addressing other
+    community members in a space that feels, functionally, like a support group rather
+    than a public broadcast. The fact that the data is technically accessible does not
+    mean the users understood or intended their posts to be used for computational
+    analysis.
+
+    McKee and Porter (2009) introduced the concept of contextual integrity to online
+    research ethics — the idea that information flows appropriately when they match
+    the norms of the context in which the information was originally shared. A post
+    shared in r/SuicideWatch is shared in a context whose norms involve peer support,
+    anonymity, and crisis response. Using that post as a data point in a classification
+    algorithm violates contextual integrity even if it does not violate any legal
+    requirement. This analysis uses exactly this kind of data, and that violation
+    of contextual integrity is a genuine ethical cost that cannot be dismissed by
+    pointing to the terms of service.
+    """)
+
+    st.divider()
+
+    # ---- Vulnerability and sensitivity ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Vulnerability, Sensitivity, and the Duty of Care</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Research on mental health data raises specific ethical concerns that go beyond
+    the general publicness problem. The people who post in r/SuicideWatch and
+    r/depression are, by definition, in distress. They represent a vulnerable
+    population in the specific sense used in research ethics: individuals whose
+    circumstances may compromise their ability to make fully autonomous decisions
+    about participation in research and who may be at increased risk of harm from
+    research that goes wrong.
+
+    The Association of Internet Researchers (AoIR) ethical guidelines (Franzke et al.,
+    2020) specifically address research on vulnerable populations online, arguing that
+    researchers have a heightened duty of care when working with data from communities
+    organised around health, crisis, or personal difficulty. This duty of care does not
+    prohibit research — it requires that the potential benefits be proportionate to the
+    potential harms, that privacy be protected wherever possible, and that the research
+    be conducted with genuine awareness of the human reality behind the data.
+
+    The specific risk in mental health NLP research is what Benton et al. (2017) call
+    the dual use problem: the same methods that could improve crisis detection and
+    mental health monitoring could also be used for surveillance, discrimination, or
+    targeting of vulnerable individuals by bad actors. A classifier trained on
+    r/SuicideWatch posts could, in principle, be used by an insurance company to
+    identify high-risk individuals, by an employer to screen applicants, or by a
+    state actor to monitor dissidents using the language of mental distress as cover.
+    These uses are not hypothetical — they are documented in adjacent domains such
+    as facial recognition and predictive policing.
+
+    This analysis does not mitigate the dual use risk. It produces classifiers,
+    embeddings, and topic models that could in principle be extracted and misused.
+    The ethical weight of this cannot be fully resolved by the disclaimer that this
+    tool is for research and educational purposes only.
+    """)
+
+    st.divider()
+
+    # ---- Anonymisation and re-identification ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Anonymisation and Re-identification</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    This analysis does not store or display usernames and does not attempt to identify
+    individual users. However, the question of anonymisation in social media research
+    is more complex than simply removing usernames. Sweeney (2002) demonstrated that
+    combinations of seemingly innocuous attributes — postcode, date of birth, gender —
+    are sufficient to re-identify a significant proportion of individuals in supposedly
+    anonymised datasets. The same logic applies to social media posts: a sufficiently
+    specific combination of post content, timing, and subreddit can make an individual
+    uniquely identifiable even without a username.
+
+    The posts reproduced in this analysis — for example the centroid posts cited in
+    Section 4 as the most representative of each community — are verbatim extracts
+    from Reddit. Anyone who searches for these phrases verbatim could find the original
+    posts and the users who wrote them. This is a genuine re-identification risk that
+    paraphrasing would mitigate but not eliminate.
+
+    The British Psychological Society (2021) guidelines on internet-mediated research
+    recommend that researchers minimise the risk of re-identification by paraphrasing
+    rather than quoting verbatim wherever the meaning is not compromised by doing so.
+    This analysis does not fully comply with that recommendation. The decision to quote
+    verbatim was made in order to give an accurate picture of the language used in these
+    communities, but it carries a re-identification risk that should be acknowledged.
+    """)
+
+    st.divider()
+
+    # ---- The representation problem ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #5CB85C;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Who Gets to Represent Mental Health?</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    A less commonly discussed ethical issue in mental health NLP is the question of
+    representational power — whose experience of mental health gets encoded in the
+    training data and whose does not.
+
+    Reddit's user base is not demographically representative. It skews young, male,
+    English-speaking, and from high-income countries. Mental health subreddits
+    reflect these demographics. The language models trained on this data — including
+    the classifiers in this analysis — learn to recognise patterns of mental health
+    discourse that are characteristic of this population. They will perform poorly on
+    text that reflects different cultural, linguistic, or demographic experiences of
+    the same conditions.
+
+    Hovy and Spruit (2016) formalised this problem as the concept of demographic bias
+    in NLP — the tendency for models trained on demographically skewed data to perform
+    better for populations that are well represented in training data and worse for
+    populations that are not. In a mental health context, this has direct clinical
+    implications: a triage system trained on Reddit data would be less accurate for
+    older users, non-English speakers, women, and people from lower-income countries —
+    precisely the populations who may be most underserved by existing mental health
+    services.
+
+    This analysis makes no claim to represent the full diversity of mental health
+    experience. It represents the experience of a specific population of English-speaking
+    Reddit users in the period 2019 to 2022. The patterns it identifies are real within
+    that population, but they should not be generalised beyond it without substantial
+    additional validation.
+    """)
+
+    st.divider()
+
+    # ---- Positionality ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Positionality</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Research ethics in the social sciences increasingly requires researchers to account
+    for their own positionality — the ways in which their social position, identity,
+    and prior experience shape the questions they ask, the methods they choose, and
+    the interpretations they offer. This is as relevant in computational research as
+    in qualitative work, even if it is less commonly acknowledged.
+
+    This analysis was conducted by a student researcher with no clinical background
+    in psychology or psychiatry. The interpretations of clinical findings — for example
+    the claim that the depression/SuicideWatch boundary reflects a genuine clinical
+    reality about the co-occurrence of depressive and suicidal phenomenology — are
+    drawn from reading the clinical literature rather than from clinical experience.
+    A clinician reading this analysis might dispute those interpretations or identify
+    nuances that the computational framing obscures.
+
+    The choice to frame the 0.954 finding as a finding about the nature of these
+    experiences rather than a limitation of the method is an interpretive position
+    that reflects a particular reading of the clinical literature. It is a defensible
+    position, but it is not the only one. A more sceptical reading might argue that
+    the semantic similarity reflects shared platform conventions — that r/depression
+    and r/SuicideWatch users have learned to write in similar ways because they read
+    each other's posts — rather than a genuine phenomenological overlap between the
+    conditions. The data cannot resolve this question.
+    """)
+
+    st.divider()
+
+    # ---- What responsible research looks like ----
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
+      <h2 style='color:white;margin:0 0 14px 0'>What Responsible Research Looks Like Here</h2>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        None of the ethical concerns raised in this section are unique to this analysis.
+        They are endemic to computational research on mental health social media data.
+        The question is not whether to conduct this kind of research — the potential
+        benefits for understanding mental health at scale are real — but how to conduct
+        it responsibly.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        For this analysis, responsible conduct has meant: not identifying individual
+        users, not reproducing sensitive post content gratuitously, being explicit
+        about what the methods cannot do, refusing to recommend the classifiers for
+        clinical deployment, and engaging honestly with the ethical literature rather
+        than hiding behind a disclaimer. It has also meant acknowledging where this
+        analysis falls short of best practice — the re-identification risk in verbatim
+        quotation, the demographic limitations of the dataset, the absence of clinical
+        expertise in the interpretation of findings.
+      </p>
+      <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
+        The most important ethical commitment in mental health research is to treat
+        the people behind the data as people rather than as data points. Every post
+        in this dataset was written by a person in distress, seeking connection or
+        relief or understanding from a community of strangers. The analysis extracts
+        patterns from those posts. The least it can do is be honest about what those
+        patterns reveal, what they conceal, and what should never be done with them.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ============================================================
+# VIEW: GLOSSARY
+# ============================================================
+
+elif active_tab == "📖 Glossary":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Glossary</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        Plain English definitions of every technical term used in this analysis.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    terms = [
+        {
+            "term": "BERTopic",
+            "colour": "#5CB85C",
+            "definition": """A topic modelling technique that uses sentence embeddings and 
+            density-based clustering (HDBSCAN) to discover latent themes in a corpus without 
+            being told in advance how many topics to find or what they are. Unlike older 
+            approaches such as LDA, BERTopic represents topics as clusters in semantic space 
+            rather than as probability distributions over words, and summarises them using 
+            c-TF-IDF weighted terms."""
+        },
+        {
+            "term": "c-TF-IDF",
+            "colour": "#5CB85C",
+            "definition": """Class-based TF-IDF. A variant of TF-IDF applied at the topic 
+            level rather than the document level. Instead of asking what words are distinctive 
+            to a single document, c-TF-IDF asks what words are distinctive to all documents 
+            assigned to a given topic cluster. Used by BERTopic to summarise the most 
+            representative terms for each topic."""
+        },
+        {
+            "term": "Centroid",
+            "colour": "#4A90D9",
+            "definition": """The mean of a set of vectors in embedding space. In this 
+            analysis, the centroid of a subreddit is computed by averaging the embedding 
+            vectors of all posts in that community. The centroid represents the typical 
+            semantic position of the community — the point in meaning space that is on 
+            average closest to all posts in that community. Cosine similarity between 
+            centroids measures how close two communities are in semantic space."""
+        },
+        {
+            "term": "Cosine Similarity",
+            "colour": "#4A90D9",
+            "definition": """A measure of the angle between two vectors in high-dimensional 
+            space. A cosine similarity of 1.0 means the vectors point in exactly the same 
+            direction — the texts are semantically identical. A score of 0.0 means the 
+            vectors are perpendicular — the texts share no semantic relationship. A score 
+            of 0.954, as found between r/depression and r/SuicideWatch, means the two 
+            community centroids point in almost exactly the same direction in 
+            384-dimensional semantic space."""
+        },
+        {
+            "term": "Cross-validation",
+            "colour": "#D9534F",
+            "definition": """A technique for estimating how well a machine learning model 
+            will generalise to new data. In 5-fold cross-validation, the dataset is split 
+            into five equal parts. The model is trained on four parts and tested on the 
+            fifth, five times in total, each time using a different part as the test set. 
+            The reported accuracy is the average across all five test sets. This gives a 
+            more reliable estimate of real-world performance than a single train-test split."""
+        },
+        {
+            "term": "Dominance",
+            "colour": "#E8A838",
+            "definition": """One of the three dimensions in the VAD affective model. 
+            Dominance measures the degree to which the speaker feels in control versus 
+            powerless or submissive. High dominance language is associated with authority, 
+            confidence, and agency. Low dominance language is associated with helplessness, 
+            vulnerability, and lack of control. In this analysis all five communities score 
+            negatively on dominance, reflecting a generalised sense of low agency across 
+            mental health discourse."""
+        },
+        {
+            "term": "Embedding",
+            "colour": "#4A90D9",
+            "definition": """A numerical representation of text as a vector in 
+            high-dimensional space. Each post in this analysis is represented as a 
+            384-dimensional vector generated by the all-MiniLM-L6-v2 sentence transformer 
+            model. The key property of embeddings is that texts with similar meanings are 
+            represented as vectors pointing in similar directions, regardless of whether 
+            they share any specific words. This allows semantic similarity to be computed 
+            mathematically using cosine similarity."""
+        },
+        {
+            "term": "F1 Score",
+            "colour": "#D9534F",
+            "definition": """A measure of classifier performance that combines precision 
+            (what proportion of posts predicted as class X actually belong to class X) and 
+            recall (what proportion of posts that actually belong to class X were correctly 
+            identified). F1 is the harmonic mean of precision and recall. An F1 of 1.0 is 
+            perfect. An F1 of 0.0 means the classifier never gets this class right. In this 
+            analysis r/Anxiety achieves F1 0.78 and r/depression achieves F1 0.44."""
+        },
+        {
+            "term": "HDBSCAN",
+            "colour": "#5CB85C",
+            "definition": """Hierarchical Density-Based Spatial Clustering of Applications 
+            with Noise. A clustering algorithm that identifies groups of points that are 
+            densely packed together in high-dimensional space, while labelling sparse points 
+            as outliers rather than forcing them into a cluster. Used by BERTopic to identify 
+            topic clusters in embedding space. The high outlier rate in this analysis — 50% 
+            of posts before reduction — reflects the genuinely idiosyncratic nature of mental 
+            health disclosure."""
+        },
+        {
+            "term": "Logistic Regression",
+            "colour": "#D9534F",
+            "definition": """A classification algorithm that learns a linear boundary between 
+            classes in high-dimensional space. Given a new input vector — in this analysis, 
+            a 384-dimensional sentence embedding — logistic regression outputs a probability 
+            for each class. The class with the highest probability is the prediction. Despite 
+            its simplicity relative to deep learning approaches, logistic regression performs 
+            competitively on sentence embedding features because the embedding model has 
+            already done the hard representational work."""
+        },
+        {
+            "term": "Lemmatisation",
+            "colour": "#9B59B6",
+            "definition": """A text preprocessing step that reduces words to their base or 
+            dictionary form. Running, runs, and ran are all lemmatised to run. Lemmatisation 
+            differs from stemming in that it produces valid words rather than truncated 
+            character sequences. In this analysis lemmatisation was applied to the token sets 
+            used for TF-IDF and BERTopic, ensuring that inflected forms of the same word are 
+            treated as a single term."""
+        },
+        {
+            "term": "NRC VAD Lexicon",
+            "colour": "#E8A838",
+            "definition": """The NRC Valence-Arousal-Dominance Lexicon version 2.1, developed 
+            by Saif Mohammad (2025). A manually annotated list of over 20,000 English words, 
+            each scored on three affective dimensions: valence (positive vs negative), arousal 
+            (activated vs calm), and dominance (in control vs powerless). Scores range from 0 
+            to 1. Used in this analysis to compute the average affective profile of each post 
+            and each community."""
+        },
+        {
+            "term": "Sentence Transformer",
+            "colour": "#4A90D9",
+            "definition": """A class of neural network models trained to produce semantically 
+            meaningful embeddings for entire sentences or paragraphs, rather than individual 
+            words. The model used in this analysis, all-MiniLM-L6-v2, was trained using 
+            contrastive learning on over one billion sentence pairs, learning to place 
+            semantically similar sentences close together in embedding space regardless of 
+            surface vocabulary differences."""
+        },
+        {
+            "term": "Stopwords",
+            "colour": "#9B59B6",
+            "definition": """Common words that carry little semantic content and are typically 
+            removed before text analysis — words like the, and, is, of, a. Removing stopwords 
+            ensures that TF-IDF and BERTopic focus on content-bearing vocabulary rather than 
+            grammatical function words. In this analysis stopwords were removed for TF-IDF 
+            and BERTopic but retained for VAD scoring and sentence embeddings, where 
+            grammatical words contribute to the overall meaning of a sentence."""
+        },
+        {
+            "term": "TF-IDF",
+            "colour": "#E8A838",
+            "definition": """Term Frequency Inverse Document Frequency. A statistical measure 
+            that identifies the most distinctive terms in a document relative to a collection. 
+            A word scores highly if it appears frequently in a specific document but rarely 
+            across the collection as a whole. In this analysis each subreddit is treated as a 
+            single document, so TF-IDF identifies vocabulary that is characteristic of one 
+            community and absent or rare in the others."""
+        },
+        {
+            "term": "UMAP",
+            "colour": "#4A90D9",
+            "definition": """Uniform Manifold Approximation and Projection. A dimensionality 
+            reduction algorithm that projects high-dimensional data into two or three dimensions 
+            for visualisation while preserving the local structure of the data. In this analysis 
+            UMAP reduces 384-dimensional sentence embeddings to two dimensions, producing a 
+            scatter plot where posts that are semantically similar appear close together and 
+            posts that are semantically different appear far apart."""
+        },
+        {
+            "term": "VAD",
+            "colour": "#E8A838",
+            "definition": """Valence, Arousal, Dominance. A three-dimensional model of 
+            emotional experience proposed by Russell (1980) and extended by Mehrabian and 
+            Russell. Valence measures positive versus negative emotional tone. Arousal measures 
+            activation versus calm. Dominance measures agency versus powerlessness. Together 
+            these three dimensions capture distinctions in emotional experience that a single 
+            positive/negative sentiment score cannot — for example the difference between 
+            anxious distress (high arousal, negative valence) and lonely withdrawal 
+            (low arousal, negative valence)."""
+        },
+    ]
+
+    for term in sorted(terms, key=lambda x: x["term"]):
+        st.markdown(f"""
+        <div style='background-color:#F8F9FA;padding:18px;border-radius:6px;
+                    border-left:4px solid {term["colour"]};margin-bottom:12px'>
+          <h3 style='margin:0 0 8px 0;color:#2C3E50'>{term["term"]}</h3>
+          <p style='margin:0;color:#444;line-height:1.7;font-size:0.95em'>{term["definition"]}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+
+# ============================================================
+# VIEW: REFERENCES
+# ============================================================
+
+elif active_tab == "📚 References":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>References</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        All sources cited across this analysis, in alphabetical order within each section.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    sections = {
+        "Core Dataset and Annotation": [
+            "Naseem, U., Khushi, M., Khan, S. K., and Shaukat, K. (2022). A comparative analysis of NLP-based approaches for identifying mental health conditions on social media. <em>Applied Sciences</em>, 14(4), 1547. https://doi.org/10.3390/app14041547",
+            "<strong>Data Availability Statement:</strong> The dataset is publicly available and can be accessed on Kaggle at https://rb.gy/ewtjy (accessed 1 April 2026).",
+        ],
+        "NLP Methods and Models": [
+            "Firth, J. R. (1957). A synopsis of linguistic theory 1930-1955. In F. R. Palmer (Ed.), <em>Selected Papers of J. R. Firth 1952-1959</em>. Longmans.",
+            "Grootendorst, M. (2022). BERTopic: Neural topic modeling with a class-based TF-IDF procedure. <em>arXiv</em>:2203.05794.",
+            "Harris, Z. S. (1954). Distributional structure. <em>Word</em>, 10(2-3), 146-162.",
+            "McInnes, L., Healy, J., and Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. <em>arXiv</em>:1802.03426.",
+            "Mohammad, S. M. (2025). NRC Valence, Arousal, and Dominance Lexicon v2.1. National Research Council Canada.",
+            "Reimers, N., and Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. Association for Computational Linguistics.",
+        ],
+        "Affective Psychology and Clinical Psycholinguistics": [
+            "Coppersmith, G., Dredze, M., and Harman, C. (2014). Quantifying mental health signals in Twitter. In <em>Proceedings of the Workshop on Computational Linguistics and Clinical Psychology</em>. Association for Computational Linguistics.",
+            "De Choudhury, M., Gamon, M., Counts, S., and Horvitz, E. (2013). Predicting depression via social media. In <em>Proceedings of the 7th International AAAI Conference on Weblogs and Social Media</em>.",
+            "Pennebaker, J. W. (2011). <em>The Secret Life of Pronouns: What Our Words Say About Us</em>. Bloomsbury Press.",
+            "Rude, S., Gortner, E. M., and Pennebaker, J. W. (2004). Language use of depressed and depression-vulnerable college students. <em>Cognition and Emotion</em>, 18(8), 1121-1133.",
+            "Russell, J. A. (1980). A circumplex model of affect. <em>Journal of Personality and Social Psychology</em>, 39(6), 1161-1178.",
+            "Stirman, S. W., and Pennebaker, J. W. (2001). Word use in the poetry of suicidal and nonsuicidal poets. <em>Psychosomatic Medicine</em>, 63(4), 517-522.",
+            "Tadesse, M. M., Lin, H., Xu, B., and Yang, L. (2019). Detection of depression-related posts in Reddit social media forum. <em>IEEE Access</em>, 7, 44883-44893.",
+            "Wells, A. (2009). <em>Metacognitive Therapy for Anxiety and Depression</em>. Guilford Press.",
+        ],
+        "Sociolinguistics and Discourse Analysis": [
+            "Lave, J., and Wenger, E. (1991). <em>Situated Learning: Legitimate Peripheral Participation</em>. Cambridge University Press.",
+        ],
+        "NLP Ethics and Social Impact": [
+            "Benton, A., Mitchell, M., and Hovy, D. (2017). Multitask learning for mental health conditions with limited social media-based training data. In <em>Proceedings of the 15th Conference of the European Chapter of the Association for Computational Linguistics</em>.",
+            "Hovy, D., and Spruit, S. L. (2016). The social impact of natural language processing. In <em>Proceedings of the 54th Annual Meeting of the Association for Computational Linguistics</em>.",
+        ],
+        "Research Ethics": [
+            "Association of Internet Researchers (2020). Internet research: Ethical guidelines 3.0. Franzke, A. S., Bechmann, A., Zimmer, M., and Ess, C. https://aoir.org/reports/ethics3.pdf",
+            "British Psychological Society (2021). <em>Ethics Guidelines for Internet-Mediated Research</em>. BPS.",
+            "McKee, H. A., and Porter, J. E. (2009). <em>The Ethics of Internet Research: A Rhetorical, Case-Based Process</em>. Peter Lang.",
+            "Sweeney, L. (2002). k-anonymity: A model for protecting privacy. <em>International Journal of Uncertainty, Fuzziness and Knowledge-Based Systems</em>, 10(5), 557-570.",
+            "Zimmer, M. (2010). But the data is already public: On the ethics of research in Facebook. <em>Ethics and Information Technology</em>, 12(4), 313-325.",
+        ],
+        "Clinical Psychology": [
+    "Beck, A. T. (1979). <em>Cognitive Therapy of Depression</em>. Guilford Press.",
+    "Beck, A. T., Steer, R. A., Kovacs, M., and Garrison, B. (1985). Hopelessness and eventual suicide: A 10-year prospective study of patients hospitalised with suicidal ideation. <em>American Journal of Psychiatry</em>, 142(5), 559-563.",
+    "Hawton, K., i Comabella, C. C., Haw, C., and Saunders, K. (2013). Risk factors for suicide in individuals with depression: A systematic review. <em>Journal of Affective Disorders</em>, 147(1-3), 17-28.",
+    "Joiner, T. (2005). <em>Why People Die by Suicide</em>. Harvard University Press.",
+    "Shneidman, E. S. (1993). <em>Suicide as Psychache: A Clinical Approach to Self-Destructive Behavior</em>. Jason Aronson.",
+    "Van Orden, K. A., Witte, T. K., Cukrowicz, K. C., Braithwaite, S. R., Selby, E. A., and Joiner, T. E. (2010). The interpersonal theory of suicide. <em>Psychological Review</em>, 117(2), 575-600.",
+],
+    }
+
+    for section_title, refs in sections.items():
+        st.markdown(f"""
+        <div style='background-color:#F0F4F8;padding:16px 20px;border-left:4px solid #2C3E50;
+                    border-radius:4px;margin:20px 0 12px 0'>
+          <h3 style='margin:0;color:#2C3E50'>{section_title}</h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+        for ref in refs:
+            st.markdown(f"""
+            <div style='background-color:#F8F9FA;padding:14px 16px;border-radius:6px;
+                        margin-bottom:8px'>
+              <p style='margin:0;color:#444;line-height:1.7;font-size:0.92em'>{ref}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+# ============================================================
+# VIEW: DEPRESSION AND SUICIDAL IDEATION
+# ============================================================
+
+elif active_tab == "🔴 Depression and Suicidal Ideation":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Depression and Suicidal Ideation</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        Why the 0.954 similarity between r/depression and r/SuicideWatch is not a
+        surprising result — it is a theoretically motivated prediction confirmed by data.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- The prediction ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Starting With a Prediction</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Before examining the computational findings, it is worth asking what the clinical
+    literature would lead us to expect. If depression and suicidal ideation are
+    genuinely distinct psychological phenomena with distinct phenomenological profiles,
+    we would expect the language used to express them to be distinguishable. If they
+    share a common affective substrate — overlapping experiences of hopelessness,
+    worthlessness, and the desire for relief from suffering — we would expect the
+    language to converge.
+
+    The clinical literature makes a clear prediction. Depression is the single strongest
+    risk factor for suicidal ideation across all major epidemiological studies. Between
+    40% and 60% of individuals who die by suicide have a diagnosable depressive disorder
+    at the time of death (Hawton et al., 2013). The phenomenology of severe depression
+    and suicidal crisis overlaps substantially: both are characterised by hopelessness,
+    cognitive constriction, feelings of worthlessness and burdensomeness, and a desire
+    for relief from psychological pain that may or may not take the specific form of a
+    wish to die.
+
+    On the basis of this literature, a semantic similarity of 0.954 between r/depression
+    and r/SuicideWatch is not a surprising result. It is what the clinical literature
+    would predict. The computational finding confirms a theoretically motivated
+    expectation rather than producing an anomaly that requires retrospective explanation.
+    """)
+
+    st.divider()
+
+    # ---- Beck and hopelessness ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Beck and the Hopelessness Model</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Aaron Beck's cognitive model of depression identifies three core cognitive patterns —
+    the cognitive triad — that characterise depressive experience: negative views of the
+    self, negative views of the world, and negative views of the future (Beck, 1979).
+    Of these three, hopelessness — the negative view of the future — is the dimension
+    most strongly associated with suicidal ideation and suicide risk.
+
+    Beck et al. (1985) demonstrated that hopelessness is a stronger predictor of
+    eventual suicide than depression severity itself. In a landmark prospective study,
+    patients with high hopelessness scores were significantly more likely to die by
+    suicide over a ten-year follow-up period, independent of their overall depression
+    diagnosis. This finding has been replicated across multiple clinical populations
+    and is now considered one of the most robust findings in suicidology.
+
+    The implication for language is direct. If hopelessness — rather than depression
+    per se — is the proximal psychological driver of suicidal ideation, and if
+    hopelessness is expressed through language in characteristic ways, then the
+    language of severe depression and suicidal crisis should be difficult to separate
+    precisely because both are expressions of the same underlying cognitive state.
+    The vocabulary of hopelessness — futility, exhaustion, the absence of future
+    possibilities, the desire for relief — is shared across both conditions.
+
+    This is visible in the TF-IDF and BERTopic findings. The most distinctive terms
+    in r/SuicideWatch are not, in the main, terms that express a specific wish to die.
+    They are terms that express exhaustion and the desire for relief: tired, stop,
+    anymore, fighting. These are also characteristic of severe depression. The boundary
+    between expressing hopelessness and expressing suicidal ideation is not a clear
+    lexical boundary — it is a continuum, and the language does not step-change
+    across it.
+    """)
+
+    st.divider()
+
+    # ---- Joiner ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Joiner's Interpersonal Theory of Suicide</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Thomas Joiner's interpersonal theory of suicide (2005) proposes that suicidal
+    ideation requires two specific psychological states beyond depression: thwarted
+    belongingness — a sense that one does not belong to any meaningful social group —
+    and perceived burdensomeness — a belief that one is a burden to others whose lives
+    would be better without them. On Joiner's account, depression alone is insufficient
+    to produce suicidal ideation; what moves a person from depressive suffering to
+    active suicidal ideation is the specific combination of social disconnection and
+    the belief that one's death would benefit those one loves.
+
+    Joiner's theory predicts that the language of suicidal ideation should be
+    distinguishable from the language of depression by the presence of these specific
+    themes — burdensomeness and thwarted belongingness — over and above the shared
+    hopelessness content. Van Orden et al. (2010) provided empirical support for this
+    prediction, demonstrating that the two constructs are independently associated with
+    suicidal ideation even after controlling for depression severity.
+
+    The computational finding presents a challenge to Joiner's account. If thwarted
+    belongingness and perceived burdensomeness are the distinctive features of suicidal
+    discourse, they should be detectable at the level of language — and a classifier
+    trained on sentence embeddings should be able to use them to distinguish
+    r/SuicideWatch from r/depression. It cannot. The communities are semantically
+    indistinguishable at 0.954.
+
+    There are two possible interpretations. The first is that the language of thwarted
+    belongingness and perceived burdensomeness is not sufficiently distinctive to
+    separate the communities at the level of sentence meaning — that these themes are
+    present in both communities, just at different intensities. The Pennebaker finding
+    provides some support for this: r/SuicideWatch's higher first-person pronoun rate
+    may reflect a more extreme degree of the self-focused constriction associated with
+    perceived burdensomeness, but the difference is 7.5% rather than a categorical
+    boundary.
+
+    The second interpretation is that Joiner's theoretical distinction between depression
+    and suicidal ideation is clinically real but not linguistically expressed in ways
+    that current NLP methods can detect. The interpersonal constructs of burdensomeness
+    and belongingness may be more visible in the pragmatic structure of posts — who
+    they are addressed to, what kind of response they solicit — than in their semantic
+    content. This is consistent with the finding in the manual annotation exercise that
+    help-seeking and help-providing orientations are not always resolvable from text
+    alone.
+    """)
+
+    st.divider()
+
+    # ---- The phenomenological overlap ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Phenomenological Overlap</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Beyond the theoretical models, there is a phenomenological reality that the
+    computational finding reflects. The experience of severe depression and the
+    experience of suicidal crisis share a common affective core that is difficult
+    to separate even in first-person accounts.
+
+    Shneidman (1993) proposed the concept of psychache — unbearable psychological
+    pain — as the proximal driver of suicidal behaviour. On Shneidman's account,
+    what moves a person toward suicide is not a specific wish to die but an
+    intolerable degree of psychological suffering combined with the belief that
+    death is the only available exit. The desire for relief from suffering, rather
+    than the desire for death itself, is the motivating state. This account has
+    direct implications for language: if the proximal driver of suicidal crisis is
+    an unbearable quality of psychological pain rather than a specific cognitive
+    content distinguishable from depression, the language used to express suicidal
+    ideation should be expected to closely resemble the language of severe depressive
+    suffering. The thought expressed in the SuicideWatch centroid post — "everything
+    has gone to shit and im so tired" — is consistent with psychache rather than
+    with a distinct suicidal cognitive state. It expresses the unbearable quality of
+    present experience without specifying what relief would look like. The platform
+    label attached to it reflects the community the person chose to post in, not a
+    clinically meaningful distinction between depressive and suicidal experience.
+
+
+    This is the linguistic reality that the 0.954 similarity captures. The posts at
+    the semantic centre of r/depression and r/SuicideWatch are not categorically
+    different kinds of text. They are expressions of the same underlying experience —
+    profound suffering, exhaustion, and the desire for relief — at different points on
+    a continuum that clinical theory tries to divide but that lived experience does not.
+
+    The centroid post identified for r/SuicideWatch in Section 4 of the Research
+    Findings is "everything has gone to shit and im so tired." This is not an expression
+    of a specific suicidal plan. It is an expression of exhaustion and despair that
+    could appear — and does appear — in r/depression as well. The platform label
+    attached to it reflects the community the person chose to post in, not a clinically
+    meaningful distinction between depressive and suicidal experience.
+    """)
+
+    st.divider()
+
+    # ---- What this means ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What This Means for the 0.954 Finding</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    big_stat(
+        "0.954",
+        "A theoretically predicted result — not a methodological failure",
+        "#D9534F"
+    )
+
+    st.markdown("""
+    The 0.954 cosine similarity between r/depression and r/SuicideWatch should be
+    read against this clinical background. It is not evidence that the NLP methods
+    are inadequate. It is evidence that the methods are sensitive enough to reflect
+    a genuine feature of mental health phenomenology that clinical theory has been
+    grappling with for decades.
+
+    Beck's hopelessness model predicts that severe depression and suicidal ideation
+    share a common cognitive core — the prediction is therefore that their language
+    should be similar. Joiner's interpersonal theory predicts that suicidal ideation
+    requires additional psychological content beyond depression — the prediction is
+    therefore that there should be some detectable linguistic difference. The
+    computational finding — near-identical meaning with a small but consistent
+    difference in first-person pronoun rate — is more consistent with Beck than
+    with Joiner, though it does not refute Joiner's theory.
+
+    The longitudinal stability of the finding strengthens this interpretation. The
+    similarity was 0.952 in April 2019, before the pandemic produced any of the
+    vocabulary shifts documented in Sections 10 and 11. The boundary was not created
+    by the particular circumstances of 2022, and it was not created by COVID-19.
+    It reflects something stable about how these experiences are expressed in language
+    — something that the clinical literature on the relationship between depression
+    and suicidality would lead us to expect.
+                
+    The Pennebaker pronoun findings reported in the Language and Psychological State
+    section are consistent with both Beck and Joiner's accounts. The first-person
+    pronoun hierarchy — r/SuicideWatch highest at 0.1276, r/depression second at
+    0.1188 — reflects the progressive constriction of attention toward the self that
+    both models predict. Beck's cognitive triad produces inward attentional focus
+    through ruminative self-evaluation. Joiner's perceived burdensomeness — the
+    belief that one is a burden to others — is an intensely self-focused cognitive
+    state that would be expected to produce elevated first-person pronoun use beyond
+    that associated with depression alone. The 7.5% difference in pronoun rate
+    between the two communities is small but theoretically interpretable: it is
+    consistent with suicidal crisis representing a more extreme degree of the same
+    self-focused constriction rather than a categorically different psychological
+    state. This connects the psycholinguistic findings directly to the theoretical
+    framework — the pronoun hierarchy is not an isolated empirical observation but
+    a pattern predicted by the clinical models.
+
+
+    The practical implication is the same as the purely empirical reading: any NLP
+    system attempting to triage mental health content by distinguishing depressive
+    from suicidal discourse is attempting to make a distinction that the clinical
+    literature suggests is genuinely difficult even for trained clinicians, and that
+    the computational evidence suggests is not reliably detectable at the level of
+    sentence meaning. This is not a reason to abandon the effort — it is a reason
+    to be honest about what any such system can and cannot do.
+    """)
+
+    st.divider()
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
+      <h2 style='color:white;margin:0 0 14px 0'>The Contribution of This Analysis</h2>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        This analysis does not resolve the clinical debate about the relationship
+        between depression and suicidal ideation. That debate has been ongoing for
+        decades and will not be settled by NLP evidence from Reddit posts.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        What it contributes is a large-scale, longitudinally stable, computationally
+        rigorous demonstration that the language of these two communities is nearly
+        indistinguishable — a finding that is consistent with the phenomenological
+        overlap described by Beck, Joiner, and others, and that has direct practical
+        implications for anyone building NLP systems for mental health monitoring.
+      </p>
+      <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
+        The 0.954 figure is not a number to be explained away. It is a number that
+        reflects something true about human suffering — that the line between
+        depression and suicidal crisis is not a clear boundary but a continuum,
+        and that language, which expresses experience rather than clinical categories,
+        does not respect the distinctions that diagnostic systems impose.
       </p>
     </div>
     """, unsafe_allow_html=True)
