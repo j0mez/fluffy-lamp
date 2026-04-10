@@ -187,7 +187,9 @@ NAV_OPTIONS = [
     "🔬 Methods and Disciplines",
     "📖 Language and Psychological State",
     "🔴 Depression and Suicidal Ideation",
+    "🔠 Frame Semantic Analysis",
     "🛠️ Building the App",
+    "🛠️ Building the Frame Analysis",
     "🔍 Analyse Text",
     "⚖️ Compare Texts",
     "📚 Research Findings",
@@ -3094,6 +3096,8 @@ elif active_tab == "📚 References":
             "McInnes, L., Healy, J., and Melville, J. (2018). UMAP: Uniform manifold approximation and projection for dimension reduction. <em>arXiv</em>:1802.03426.",
             "Mohammad, S. M. (2025). NRC Valence, Arousal, and Dominance Lexicon v2.1. National Research Council Canada.",
             "Reimers, N., and Gurevych, I. (2019). Sentence-BERT: Sentence embeddings using Siamese BERT-networks. In <em>Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing</em>. Association for Computational Linguistics.",
+            "Kotnis, B., Bourgeot, J., Titov, I., and Muller, P. (2022). Dynamic frame-semantic parsing via fast-slow networks. In <em>Proceedings of the 2nd Conference of the Asia-Pacific Chapter of the Association for Computational Linguistics</em>.",
+"Fillmore, C. J. (1982). Frame semantics. In <em>Linguistics in the Morning Calm</em>. Hanshin Publishing.",
         ],
         "Affective Psychology and Clinical Psycholinguistics": [
             "Coppersmith, G., Dredze, M., and Harman, C. (2014). Quantifying mental health signals in Twitter. In <em>Proceedings of the Workshop on Computational Linguistics and Clinical Psychology</em>. Association for Computational Linguistics.",
@@ -3156,12 +3160,13 @@ elif active_tab == "🔴 Depression and Suicidal Ideation":
       <h1 style='color:white;margin:0 0 10px 0'>Depression and Suicidal Ideation</h1>
       <p style='color:#BDC3C7;margin:0;line-height:1.7'>
         Why the 0.954 similarity between r/depression and r/SuicideWatch is not a
-        surprising result — it is a theoretically motivated prediction confirmed by data.
+        surprising result, what questions it leaves open, and what frame-level analysis
+        reveals beneath it.
       </p>
     </div>
     """, unsafe_allow_html=True)
 
-    # ---- The prediction ----
+    # ---- Starting With a Prediction ----
     st.markdown("""
     <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
                 border-radius:4px;margin-bottom:20px'>
@@ -3171,12 +3176,11 @@ elif active_tab == "🔴 Depression and Suicidal Ideation":
 
     st.markdown("""
     Before examining the computational findings, it is worth asking what the clinical
-    literature would lead us to expect. If depression and suicidal ideation are
-    genuinely distinct psychological phenomena with distinct phenomenological profiles,
-    we would expect the language used to express them to be distinguishable. If they
-    share a common affective substrate — overlapping experiences of hopelessness,
-    worthlessness, and the desire for relief from suffering — we would expect the
-    language to converge.
+    literature would lead us to expect. If depression and suicidal ideation are genuinely
+    distinct psychological phenomena with distinct phenomenological profiles, we would
+    expect the language used to express them to be distinguishable. If they share a
+    common affective substrate, overlapping experiences of hopelessness, worthlessness,
+    and the desire for relief from suffering, we would expect the language to converge.
 
     The clinical literature makes a clear prediction. Depression is the single strongest
     risk factor for suicidal ideation across all major epidemiological studies. Between
@@ -3191,11 +3195,17 @@ elif active_tab == "🔴 Depression and Suicidal Ideation":
     and r/SuicideWatch is not a surprising result. It is what the clinical literature
     would predict. The computational finding confirms a theoretically motivated
     expectation rather than producing an anomaly that requires retrospective explanation.
+
+    But prediction and confirmation are only the first step. The clinical literature also
+    predicts that the two conditions should not be entirely indistinguishable. The sections
+    below work through what each major theoretical framework expects, where the sentence
+    embedding analysis succeeds and falls short, and what a subsequent frame-level
+    analysis reveals beneath the surface similarity.
     """)
 
     st.divider()
 
-    # ---- Beck and hopelessness ----
+    # ---- Beck ----
     st.markdown("""
     <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
                 border-radius:4px;margin-bottom:20px'>
@@ -3204,34 +3214,38 @@ elif active_tab == "🔴 Depression and Suicidal Ideation":
     """, unsafe_allow_html=True)
 
     st.markdown("""
-    Aaron Beck's cognitive model of depression identifies three core cognitive patterns —
-    the cognitive triad — that characterise depressive experience: negative views of the
+    Aaron Beck's cognitive model of depression identifies three core cognitive patterns,
+    the cognitive triad, that characterise depressive experience: negative views of the
     self, negative views of the world, and negative views of the future (Beck, 1979).
-    Of these three, hopelessness — the negative view of the future — is the dimension
-    most strongly associated with suicidal ideation and suicide risk.
+    Of these three, hopelessness, the negative view of the future, is the dimension most
+    strongly associated with suicidal ideation and suicide risk.
 
-    Beck et al. (1985) demonstrated that hopelessness is a stronger predictor of
-    eventual suicide than depression severity itself. In a landmark prospective study,
-    patients with high hopelessness scores were significantly more likely to die by
-    suicide over a ten-year follow-up period, independent of their overall depression
-    diagnosis. This finding has been replicated across multiple clinical populations
-    and is now considered one of the most robust findings in suicidology.
+    Beck et al. (1985) demonstrated that hopelessness is a stronger predictor of eventual
+    suicide than depression severity itself. In a landmark prospective study, patients with
+    high hopelessness scores were significantly more likely to die by suicide over a
+    ten-year follow-up period, independent of their overall depression diagnosis. This
+    finding has been replicated across multiple clinical populations and is now considered
+    one of the most robust findings in suicidology.
 
-    The implication for language is direct. If hopelessness — rather than depression
-    per se — is the proximal psychological driver of suicidal ideation, and if
-    hopelessness is expressed through language in characteristic ways, then the
-    language of severe depression and suicidal crisis should be difficult to separate
-    precisely because both are expressions of the same underlying cognitive state.
-    The vocabulary of hopelessness — futility, exhaustion, the absence of future
-    possibilities, the desire for relief — is shared across both conditions.
+    The implication for language is direct. If hopelessness, rather than depression per se,
+    is the proximal psychological driver of suicidal ideation, and if hopelessness is
+    expressed through language in characteristic ways, then the language of severe
+    depression and suicidal crisis should be difficult to separate precisely because both
+    are expressions of the same underlying cognitive state. The vocabulary of hopelessness,
+    including futility, exhaustion, the absence of future possibilities, and the desire for
+    relief, is shared across both conditions.
 
-    This is visible in the TF-IDF and BERTopic findings. The most distinctive terms
-    in r/SuicideWatch are not, in the main, terms that express a specific wish to die.
-    They are terms that express exhaustion and the desire for relief: tired, stop,
-    anymore, fighting. These are also characteristic of severe depression. The boundary
-    between expressing hopelessness and expressing suicidal ideation is not a clear
-    lexical boundary — it is a continuum, and the language does not step-change
-    across it.
+    This is visible in the TF-IDF and BERTopic findings. The most distinctive terms in
+    r/SuicideWatch are not, in the main, terms that express a specific wish to die. They
+    are terms that express exhaustion and the desire for relief: tired, stop, anymore,
+    fighting. These are also characteristic of severe depression. The boundary between
+    expressing hopelessness and expressing suicidal ideation is not a clear lexical
+    boundary. It is a continuum, and the language does not step-change across it.
+
+    Beck's model therefore predicts the 0.954 finding well. If the cognitive core of both
+    conditions is hopelessness, then the language should converge at the level of meaning.
+    Sentence embeddings, which encode what is being expressed, reflect this convergence
+    directly.
     """)
 
     st.divider()
@@ -3240,56 +3254,55 @@ elif active_tab == "🔴 Depression and Suicidal Ideation":
     st.markdown("""
     <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
                 border-radius:4px;margin-bottom:20px'>
-      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Joiner's Interpersonal Theory of Suicide</h2>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Joiner's Interpersonal Theory and Its Open Questions</h2>
     </div>
     """, unsafe_allow_html=True)
 
     st.markdown("""
     Thomas Joiner's interpersonal theory of suicide (2005) proposes that suicidal
     ideation requires two specific psychological states beyond depression: thwarted
-    belongingness — a sense that one does not belong to any meaningful social group —
-    and perceived burdensomeness — a belief that one is a burden to others whose lives
+    belongingness, a sense that one does not belong to any meaningful social group,
+    and perceived burdensomeness, a belief that one is a burden to others whose lives
     would be better without them. On Joiner's account, depression alone is insufficient
-    to produce suicidal ideation; what moves a person from depressive suffering to
-    active suicidal ideation is the specific combination of social disconnection and
-    the belief that one's death would benefit those one loves.
+    to produce suicidal ideation. What moves a person from depressive suffering to active
+    suicidal ideation is the specific combination of social disconnection and the belief
+    that one's death would benefit those one loves.
 
-    Joiner's theory predicts that the language of suicidal ideation should be
-    distinguishable from the language of depression by the presence of these specific
-    themes — burdensomeness and thwarted belongingness — over and above the shared
-    hopelessness content. Van Orden et al. (2010) provided empirical support for this
-    prediction, demonstrating that the two constructs are independently associated with
-    suicidal ideation even after controlling for depression severity.
+    Joiner's theory also introduces a third construct: acquired capability. Repeated
+    exposure to painful and provocative experiences, including self-harm, violence, or
+    sustained contemplation of death, habituates a person to the fear of death that
+    normally functions as a protective barrier. It is acquired capability, combined with
+    thwarted belongingness and perceived burdensomeness, that Joiner argues transforms
+    ideation into action.
 
-    The computational finding presents a challenge to Joiner's account. If thwarted
-    belongingness and perceived burdensomeness are the distinctive features of suicidal
-    discourse, they should be detectable at the level of language — and a classifier
-    trained on sentence embeddings should be able to use them to distinguish
-    r/SuicideWatch from r/depression. It cannot. The communities are semantically
-    indistinguishable at 0.954.
+    Van Orden et al. (2010) provided empirical support for the theory, demonstrating
+    that thwarted belongingness and perceived burdensomeness are independently associated
+    with suicidal ideation even after controlling for depression severity.
 
-    There are two possible interpretations. The first is that the language of thwarted
-    belongingness and perceived burdensomeness is not sufficiently distinctive to
-    separate the communities at the level of sentence meaning — that these themes are
-    present in both communities, just at different intensities. The Pennebaker finding
-    provides some support for this: r/SuicideWatch's higher first-person pronoun rate
-    may reflect a more extreme degree of the self-focused constriction associated with
-    perceived burdensomeness, but the difference is 7.5% rather than a categorical
-    boundary.
+    The sentence embedding analysis presents a challenge to Joiner's account. If thwarted
+    belongingness, perceived burdensomeness, and acquired capability are the distinctive
+    features of suicidal discourse, they should be detectable at the level of language,
+    and a classifier trained on sentence embeddings should be able to use them to
+    distinguish r/SuicideWatch from r/depression. It cannot. The communities are
+    semantically indistinguishable at 0.954.
 
-    The second interpretation is that Joiner's theoretical distinction between depression
-    and suicidal ideation is clinically real but not linguistically expressed in ways
-    that current NLP methods can detect. The interpersonal constructs of burdensomeness
-    and belongingness may be more visible in the pragmatic structure of posts — who
-    they are addressed to, what kind of response they solicit — than in their semantic
-    content. This is consistent with the finding in the manual annotation exercise that
-    help-seeking and help-providing orientations are not always resolvable from text
-    alone.
+    Two interpretations follow from this. The first is that these themes are present in
+    both communities at different intensities rather than as a categorical boundary. The
+    Pennebaker finding provides some support for this: r/SuicideWatch's higher first-person
+    pronoun rate may reflect a more extreme degree of the self-focused constriction
+    associated with perceived burdensomeness, but the difference is 7.5% rather than a
+    categorical boundary. The second interpretation is that Joiner's distinctions are
+    clinically real but not visible to sentence embeddings, which encode semantic content
+    rather than cognitive framing. If the acquired capability construct expresses itself not
+    in what is said but in how experience is framed, embeddings would miss it entirely.
+
+    This second interpretation is addressed directly by the frame-level analysis described
+    below.
     """)
 
     st.divider()
 
-    # ---- The phenomenological overlap ----
+    # ---- Shneidman ----
     st.markdown("""
     <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
                 border-radius:4px;margin-bottom:20px'>
@@ -3303,127 +3316,954 @@ elif active_tab == "🔴 Depression and Suicidal Ideation":
     experience of suicidal crisis share a common affective core that is difficult
     to separate even in first-person accounts.
 
-    Shneidman (1993) proposed the concept of psychache — unbearable psychological
-    pain — as the proximal driver of suicidal behaviour. On Shneidman's account,
-    what moves a person toward suicide is not a specific wish to die but an
-    intolerable degree of psychological suffering combined with the belief that
-    death is the only available exit. The desire for relief from suffering, rather
-    than the desire for death itself, is the motivating state. This account has
-    direct implications for language: if the proximal driver of suicidal crisis is
-    an unbearable quality of psychological pain rather than a specific cognitive
-    content distinguishable from depression, the language used to express suicidal
-    ideation should be expected to closely resemble the language of severe depressive
-    suffering. The thought expressed in the SuicideWatch centroid post — "everything
-    has gone to shit and im so tired" — is consistent with psychache rather than
-    with a distinct suicidal cognitive state. It expresses the unbearable quality of
-    present experience without specifying what relief would look like. The platform
-    label attached to it reflects the community the person chose to post in, not a
-    clinically meaningful distinction between depressive and suicidal experience.
+    Shneidman (1993) proposed the concept of psychache, unbearable psychological pain,
+    as the proximal driver of suicidal behaviour. On Shneidman's account, what moves a
+    person toward suicide is not a specific wish to die but an intolerable degree of
+    psychological suffering combined with the belief that death is the only available
+    exit. The desire for relief from suffering, rather than the desire for death itself,
+    is the motivating state. If the proximal driver of suicidal crisis is an unbearable
+    quality of psychological pain rather than a specific cognitive content distinguishable
+    from depression, the language used to express suicidal ideation should be expected to
+    closely resemble the language of severe depressive suffering.
 
+    The r/SuicideWatch centroid post, the most semantically representative post in that
+    community, is "everything has gone to shit and im so tired." This is not an expression
+    of a specific suicidal plan. It is an expression of exhaustion and despair that could
+    appear, and does appear, in r/depression as well. The platform label attached to it
+    reflects the community the person chose to post in, not a clinically meaningful
+    distinction between depressive and suicidal experience.
 
-    This is the linguistic reality that the 0.954 similarity captures. The posts at
-    the semantic centre of r/depression and r/SuicideWatch are not categorically
-    different kinds of text. They are expressions of the same underlying experience —
-    profound suffering, exhaustion, and the desire for relief — at different points on
-    a continuum that clinical theory tries to divide but that lived experience does not.
-
-    The centroid post identified for r/SuicideWatch in Section 4 of the Research
-    Findings is "everything has gone to shit and im so tired." This is not an expression
-    of a specific suicidal plan. It is an expression of exhaustion and despair that
-    could appear — and does appear — in r/depression as well. The platform label
-    attached to it reflects the community the person chose to post in, not a clinically
-    meaningful distinction between depressive and suicidal experience.
+    Shneidman's model, like Beck's, therefore predicts the 0.954 finding. Both locate the
+    motivating state of suicidal crisis in a form of suffering that is continuous with
+    severe depression rather than categorically distinct from it.
     """)
 
     st.divider()
 
-    # ---- What this means ----
+    # ---- What the 0.954 means ----
     st.markdown("""
     <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
                 border-radius:4px;margin-bottom:20px'>
-      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What This Means for the 0.954 Finding</h2>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What the 0.954 Finding Means</h2>
     </div>
     """, unsafe_allow_html=True)
 
     big_stat(
         "0.954",
-        "A theoretically predicted result — not a methodological failure",
+        "A theoretically predicted result, not a methodological failure. Stable since April 2019.",
         "#D9534F"
     )
 
     st.markdown("""
-    The 0.954 cosine similarity between r/depression and r/SuicideWatch should be
-    read against this clinical background. It is not evidence that the NLP methods
-    are inadequate. It is evidence that the methods are sensitive enough to reflect
-    a genuine feature of mental health phenomenology that clinical theory has been
-    grappling with for decades.
+    The 0.954 cosine similarity between r/depression and r/SuicideWatch should be read
+    against this clinical background. It is not evidence that the NLP methods are
+    inadequate. It is evidence that the methods are sensitive enough to reflect a genuine
+    feature of mental health phenomenology that clinical theory has been grappling with
+    for decades.
 
-    Beck's hopelessness model predicts that severe depression and suicidal ideation
-    share a common cognitive core — the prediction is therefore that their language
-    should be similar. Joiner's interpersonal theory predicts that suicidal ideation
-    requires additional psychological content beyond depression — the prediction is
-    therefore that there should be some detectable linguistic difference. The
-    computational finding — near-identical meaning with a small but consistent
-    difference in first-person pronoun rate — is more consistent with Beck than
-    with Joiner, though it does not refute Joiner's theory.
+    Beck's hopelessness model predicts that severe depression and suicidal ideation share
+    a common cognitive core, so their language should be similar. Joiner's interpersonal
+    theory predicts that suicidal ideation requires additional psychological content beyond
+    depression, so there should be some detectable linguistic difference. The sentence
+    embedding finding, near-identical meaning, is more consistent with Beck than with
+    Joiner at this level of analysis, though it does not refute Joiner's theory.
 
-    The longitudinal stability of the finding strengthens this interpretation. The
-    similarity was 0.952 in April 2019, before the pandemic produced any of the
-    vocabulary shifts documented in Sections 10 and 11. The boundary was not created
-    by the particular circumstances of 2022, and it was not created by COVID-19.
-    It reflects something stable about how these experiences are expressed in language
-    — something that the clinical literature on the relationship between depression
-    and suicidality would lead us to expect.
-                
-    The Pennebaker pronoun findings reported in the Language and Psychological State
-    section are consistent with both Beck and Joiner's accounts. The first-person
-    pronoun hierarchy — r/SuicideWatch highest at 0.1276, r/depression second at
-    0.1188 — reflects the progressive constriction of attention toward the self that
-    both models predict. Beck's cognitive triad produces inward attentional focus
-    through ruminative self-evaluation. Joiner's perceived burdensomeness — the
-    belief that one is a burden to others — is an intensely self-focused cognitive
-    state that would be expected to produce elevated first-person pronoun use beyond
-    that associated with depression alone. The 7.5% difference in pronoun rate
-    between the two communities is small but theoretically interpretable: it is
-    consistent with suicidal crisis representing a more extreme degree of the same
-    self-focused constriction rather than a categorically different psychological
-    state. This connects the psycholinguistic findings directly to the theoretical
-    framework — the pronoun hierarchy is not an isolated empirical observation but
-    a pattern predicted by the clinical models.
+    The Pennebaker pronoun findings are consistent with both accounts. The first-person
+    pronoun hierarchy, r/SuicideWatch highest at 0.1276 and r/depression second at 0.1188,
+    reflects the progressive constriction of attention toward the self that both models
+    predict. Beck's cognitive triad produces inward attentional focus through ruminative
+    self-evaluation. Joiner's perceived burdensomeness, the belief that one is a burden
+    to others, is an intensely self-focused cognitive state that would be expected to
+    produce elevated first-person pronoun use beyond that associated with depression alone.
+    The 7.5% difference in pronoun rate is small but stable across four years and
+    theoretically interpretable as a degree of self-focused constriction rather than a
+    categorical boundary. The pronoun hierarchy is not an isolated empirical observation
+    but a pattern predicted by the clinical models.
 
+    The longitudinal stability of the 0.954 finding strengthens this interpretation. The
+    similarity was 0.952 in April 2019, before the pandemic produced any of the vocabulary
+    shifts documented in Sections 10 and 11. The boundary was not created by COVID-19. It
+    reflects something stable about how these experiences are expressed in language.
 
-    The practical implication is the same as the purely empirical reading: any NLP
-    system attempting to triage mental health content by distinguishing depressive
-    from suicidal discourse is attempting to make a distinction that the clinical
-    literature suggests is genuinely difficult even for trained clinicians, and that
-    the computational evidence suggests is not reliably detectable at the level of
-    sentence meaning. This is not a reason to abandon the effort — it is a reason
-    to be honest about what any such system can and cannot do.
+    The practical implication is that any NLP system attempting to triage mental health
+    content by distinguishing depressive from suicidal discourse is attempting to make a
+    distinction that the clinical literature suggests is genuinely difficult even for
+    trained clinicians, and that sentence embeddings cannot reliably detect. This is not
+    a reason to abandon the effort. It is a reason to look beyond embeddings toward
+    representations that capture cognitive framing rather than semantic content.
+    """)
+
+    st.divider()
+
+    # ---- Frame analysis: what it adds ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What Frame Analysis Adds</h2>
+      <p style='margin:6px 0 0 0;color:#888;font-size:0.88em'>
+        Answering the open questions from the embedding analysis using FrameNet-based
+        semantic parsing
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    big_stat(
+        "p = 0.0001",
+        "Frame distributions between r/depression and r/SuicideWatch differ significantly "
+        "despite 0.954 cosine similarity at the sentence embedding level",
+        "#9B59B6"
+    )
+
+    st.markdown("""
+    The sentence embedding analysis left a specific question open: Joiner's distinctions
+    might be clinically real but invisible to methods that encode semantic content.
+    Acquired capability, the habituation to the fear of death, might express itself not
+    in what is said but in how experience is cognitively framed. Frame analysis directly
+    tests this.
+
+    A FrameNet-based semantic parser (frame-semantic-transformer) was applied to 13,075
+    sentences drawn from the 800 expert-annotated posts in the RMHD dataset. FrameNet
+    frames capture the cognitive orientation of language: where sentence embeddings ask
+    what a post means, frame analysis asks how the speaker is conceptually framing their
+    experience. Two posts can share near-identical embedding representations of hopelessness
+    and suffering while one frames that suffering through reflection and help-seeking and
+    the other frames it through action and mortality.
+
+    Despite 0.954 cosine similarity at the embedding level, frame distributions between
+    r/depression and r/SuicideWatch are significantly different (chi-square = 52.23,
+    p = 0.0001, df = 19). The two communities share near-identical semantic content but
+    organise that content through fundamentally different cognitive frames.
+    """)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        <div style='background-color:#F8D7DA;padding:18px;border-radius:8px;
+                    border-top:4px solid #D9534F;height:100%'>
+          <h4 style='margin:0 0 12px 0;color:#2C3E50'>r/SuicideWatch distinctive frames</h4>
+          <p style='color:#444;font-size:0.88em;line-height:1.8;margin:0'>
+            Killing (ratio 2.85)<br>
+            Intoxication (2.89)<br>
+            Cause_to_end (2.86)<br>
+            Dead_or_alive (2.59)<br>
+            Addiction (4.47)<br>
+            Surviving (2.68)<br>
+            Rape (3.13)
+          </p>
+          <p style='color:#666;font-size:0.82em;margin:12px 0 0 0;font-style:italic'>
+            Action and mortality-oriented. Death and method are linguistically foregrounded.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div style='background-color:#EBF5FB;padding:18px;border-radius:8px;
+                    border-top:4px solid #4A90D9;height:100%'>
+          <h4 style='margin:0 0 12px 0;color:#2C3E50'>r/depression distinctive frames</h4>
+          <p style='color:#444;font-size:0.88em;line-height:1.8;margin:0'>
+            Questioning (ratio 3.87)<br>
+            Memory (2.06)<br>
+            Discussion (1.78)<br>
+            Medical_professionals (1.86)<br>
+            Resolve_problem (1.64)<br>
+            Purpose (1.69)<br>
+            Waking_up (1.73)
+          </p>
+          <p style='color:#666;font-size:0.82em;margin:12px 0 0 0;font-style:italic'>
+            Reflective and help-seeking. Suffering is framed as a problem to understand
+            and address.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("""
+    This distinction maps directly onto Joiner's (2005) construct of acquired capability.
+    Joiner argues that the transition from suicidal ideation to suicidal action requires
+    habituation to the fear of death through repeated exposure to painful or provocative
+    experiences. At the linguistic level, this habituation should be visible as a shift
+    from framing death abstractly, as an emotional state or a desired relief, toward
+    framing death in terms of specific acts, methods, and outcomes. The action and
+    mortality frames that distinguish r/SuicideWatch posts from r/depression posts are
+    consistent with exactly this cognitive shift.
+
+    The earlier analysis identified two possible explanations for why Joiner's distinctions
+    were invisible to sentence embeddings. The frame analysis supports the second: Joiner's
+    distinctions are real but encoded in cognitive framing rather than semantic content.
+    Embeddings smooth over this framing because they learn to represent what is being
+    expressed. Frame analysis preserves it because FrameNet frames encode the conceptual
+    structure through which language organises experience, independently of the specific
+    content being expressed.
+
+    This is the structure that sentence embeddings cannot see. Two posts can share
+    near-identical representations of hopelessness and the desire for relief while one
+    engages with death as an abstract state and the other engages with it as a concrete
+    act. Frame analysis reveals which is which. The full method and results of the frame
+    analysis are documented in the Frame Semantic Analysis section of this app.
+    """)
+
+    st.divider()
+
+    # ---- Closing panel ----
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
+      <h2 style='color:white;margin:0 0 14px 0'>The Two-Level Account</h2>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        This analysis does not resolve the clinical debate about the relationship between
+        depression and suicidal ideation. That debate has been ongoing for decades and
+        will not be settled by NLP evidence from Reddit posts.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        What it contributes is a two-level computational account. At the sentence
+        embedding level, r/depression and r/SuicideWatch are nearly indistinguishable
+        at 0.954, consistent with Beck (1979) and Shneidman (1993): both communities
+        express the same phenomenological core of hopelessness and unbearable suffering.
+        At the frame level, the communities differ significantly (p = 0.0001), consistent
+        with Joiner (2005): r/SuicideWatch posts disproportionately frame experience
+        through action, mortality, and method, while r/depression posts disproportionately
+        frame experience through reflection, questioning, and help-seeking.
+      </p>
+      <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
+        The 0.954 figure is not a number to be explained away. Neither is the p = 0.0001.
+        Together they tell a coherent clinical story: the content of depressive and
+        suicidal discourse converges at the level of meaning, but the cognitive framing
+        of that content diverges in ways consistent with the clinical distinction between
+        ideation and acquired capability. Language expresses both the shared suffering and
+        the different orientation toward it. Different computational methods are needed
+        to see each.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ============================================================
+# VIEW: FRAME SEMANTIC ANALYSIS
+# ============================================================
+
+elif active_tab == "🔠 Frame Semantic Analysis":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Frame Semantic Analysis</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        A FrameNet-based analysis of 13,075 sentences from the 800 expert-annotated
+        posts, revealing cognitive framing patterns invisible to sentence embeddings.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- What is frame semantics ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What is Frame Semantics?</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Frame semantics, developed by Charles Fillmore (1982), proposes that words and
+    phrases evoke structured conceptual frames that organise how an experience is
+    understood. When someone says "I lost everything," the word "lost" evokes a frame
+    involving an agent, a possessed object, and an outcome of deprivation. When someone
+    says "I need to escape," the word "escape" evokes a frame involving a captive, a
+    captor, and a goal state of freedom. Two sentences can express the same emotional
+    content, the same degree of suffering, while evoking entirely different frames.
+    This is the structure that sentence embeddings, which encode what is being expressed,
+    cannot capture. Frame analysis encodes how experience is being conceptualised.
+
+    FrameNet is a computational lexical database that catalogues the frames associated
+    with thousands of English words, along with the semantic roles, called frame elements,
+    that participants in each frame can fill. The frame-semantic-transformer model
+    (Kotnis et al., 2022) applies a pre-trained neural sequence labeller to detect
+    FrameNet frames in running text, identifying both the frame-evoking word and the
+    spans of text filling each frame element role.
+
+    This analysis applied the frame-semantic-transformer to 13,075 sentences extracted
+    from the 800 expert-annotated posts in the RMHD dataset (Naseem et al., 2022).
+    Each sentence was processed independently, producing a list of detected frames and
+    their associated frame elements. The resulting dataset of 52,457 frame detections
+    across 745 unique FrameNet frames forms the basis of this analysis.
+    """)
+
+    st.divider()
+
+    # ---- Why this method ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Why Frame Analysis After Embeddings?</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The sentence embedding analysis established that r/depression and r/SuicideWatch
+    are semantically nearly identical at 0.954. This finding is consistent with Beck
+    (1979) and Shneidman (1993): both communities express the same phenomenological
+    core of hopelessness and unbearable suffering. The embedding analysis left one
+    significant question open, however. Joiner's (2005) interpersonal theory predicts
+    that suicidal crisis should be distinguishable from depression by the presence of
+    acquired capability, the habituation to the fear of death that enables the transition
+    from ideation to action. If this construct expresses itself not in what is said but
+    in how experience is cognitively framed, sentence embeddings would miss it entirely.
+
+    Frame analysis tests this directly. A post expressing suicidal ideation through the
+    frame of Killing, foregrounding death as a concrete act with an agent and a patient,
+    and a post expressing the same ideation through the frame of Desiring, foregrounding
+    an unfulfilled wish for relief, share similar emotional content but radically different
+    cognitive orientations. Embeddings represent both as similar vectors. FrameNet analysis
+    distinguishes them.
+
+    This is also the sixth NLP method applied in this analysis, and the only one operating
+    at the level of cognitive framing rather than lexical, affective, or semantic content.
+    It represents a genuinely different representational choice, and as the earlier analysis
+    established, different representational choices reveal different structures in the same
+    corpus.
+    """)
+
+    st.divider()
+
+    # ---- Dataset and method ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Dataset and Method</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Sentences analysed", "13,075")
+    m2.metric("Frame detections", "52,457")
+    m3.metric("Unique frames", "745")
+    m4.metric("Sentences with no frame", "573 (4.4%)")
+
+    st.markdown("""
+    The 800 posts in the RMHD annotation study (Naseem et al., 2022) were sentence-tokenised
+    using NLTK, producing 13,075 sentences. Each sentence was passed independently to the
+    frame-semantic-transformer model. For each sentence the model returns zero or more
+    detected frames, each identified by its FrameNet name, the trigger word or phrase, and
+    the text spans filling each frame element role.
+
+    The resulting data was merged with the source CSV containing subreddit labels and root
+    cause labels (Drug and Alcohol, Early Life, Personality, Trauma and Stress), enabling
+    frame distributions to be compared across both labelling schemes.
+
+    4.4% of sentences produced no frame detection, reflecting the model's coverage
+    limitations on short or heavily colloquial text. These sentences were excluded from
+    frequency analyses but retained in the sentence count denominator for rate calculations.
+
+    All frequency comparisons between subreddits were normalised by the number of sentences
+    per subreddit rather than by the number of frame detections, to control for differences
+    in subreddit size. Statistical significance was assessed using chi-square tests of
+    independence on contingency tables of frame counts by label or subreddit.
+    """)
+
+    st.divider()
+
+    # ---- Top frames overall ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Frame Vocabulary of Mental Health Discourse</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The most frequently detected frame across all 800 posts is Awareness (1,600 detections),
+    followed by Causation, Desiring, Emotion_directed, and Feeling. This vocabulary is
+    consistent with the general character of mental health discourse: posts are dominated
+    by frames of psychological state, causal attribution, and emotional experience.
+
+    The presence of Causation as the second most common frame is particularly noteworthy.
+    Mental health posts are not simply expressions of distress: they are attempts to
+    explain distress, to locate its origins, and to understand why the speaker feels
+    the way they do. This causal orientation is consistent with Pennebaker's (2011)
+    finding that expressive writing about distress is characterised by the construction
+    of causal narratives, and it is visible at the frame level across all five communities.
+
+    The frame vocabulary differs substantially from what TF-IDF and BERTopic reveal.
+    Where TF-IDF identifies the distinctive surface vocabulary of each community and
+    BERTopic identifies recurring thematic clusters, frame analysis identifies the
+    underlying cognitive orientations through which all five communities organise their
+    experience of mental health. These orientations are more stable than vocabulary and
+    more granular than topics.
+    """)
+
+    st.divider()
+
+    # ---- Distinctive frames by root cause ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Distinctive Frames by Root Cause Label</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Frame distributions differ significantly across the four root cause labels
+    (chi-square = 796.80, p = 0.0000, df = 57). The most distinctive frames per
+    label reveal the cognitive orientations characteristic of each root cause category.
+    """)
+
+    rc1, rc2, rc3, rc4 = st.columns(4)
+
+    for col, label, colour, frames, interpretation in [
+        (rc1, "Drug and Alcohol", "#E8A838",
+         "Ingestion (2.29x)\nProcess_start (1.47x)\nMedical_conditions (1.29x)\nDeath (1.29x)\nAssistance (1.42x)",
+         "Substance use, bodily processes, and medical framing dominate. Posts in this category engage directly with physical acts of consumption and their consequences."),
+        (rc2, "Early Life", "#4A90D9",
+         "People_by_age (2.04x)\nKinship (1.75x)\nLocale_by_use (1.76x)\nCause_harm (1.48x)\nTelling (1.21x)",
+         "Family relationships, age categories, and physical locations dominate. Posts in this category are oriented toward formative contexts and the people who populated them."),
+        (rc3, "Personality", "#5CB85C",
+         "Fear (1.48x)\nPerception_active (1.42x)\nAwareness (1.31x)\nCapability (1.25x)\nFeeling (1.22x)",
+         "Perceptual and evaluative frames dominate. Posts in this category are oriented toward how the self experiences and makes sense of its own mental processes."),
+        (rc4, "Trauma and Stress", "#D9534F",
+         "Being_employed (1.81x)\nPersonal_relationship (1.40x)\nResidence (1.29x)\nBuildings (1.34x)\nKinship (1.23x)",
+         "Work, relationships, and domestic environments dominate. Trauma and stress is framed through the contexts in which it occurs rather than through its psychological effects."),
+    ]:
+        with col:
+            st.markdown(f"""
+            <div style='background-color:#F8F9FA;padding:16px;border-radius:6px;
+                        border-top:4px solid {colour};min-height:320px'>
+              <h4 style='margin:0 0 10px 0;color:#2C3E50'>{label}</h4>
+              <p style='font-family:monospace;font-size:0.8em;color:#444;
+                        white-space:pre-line;margin:0 0 12px 0'>{frames}</p>
+              <p style='color:#666;font-size:0.82em;line-height:1.6;
+                        margin:0;font-style:italic'>{interpretation}</p>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The contrast between Early Life and Trauma and Stress is particularly revealing.
+    Both categories involve harm and difficult relational experiences. Early Life frames
+    these through kinship, age, and causation of harm: the cognitive focus is on who
+    was involved and what was done. Trauma and Stress frames them through work, residence,
+    and relationships in the present: the cognitive focus is on the contexts in which
+    stress occurs rather than its developmental origins. This distinction would not
+    be visible to a classifier operating on semantic embeddings alone, because the
+    emotional content of the two categories overlaps substantially.
+    """)
+
+    st.divider()
+
+    # ---- The key finding: dep vs SW ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #D9534F;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Key Finding: Depression vs SuicideWatch</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    big_stat(
+        "p = 0.0001",
+        "chi-square = 52.23, df = 19. Frame distributions differ significantly "
+        "between r/depression and r/SuicideWatch despite 0.954 cosine similarity.",
+        "#D9534F"
+    )
+
+    st.markdown("""
+    Frame distributions across subreddits are significantly different overall
+    (chi-square = 456.00, p = 0.0000, df = 76). The most theoretically important
+    comparison is between r/depression and r/SuicideWatch, the two communities that
+    sentence embeddings cannot separate.
+
+    The analysis restricted comparisons to frames with at least five detections in
+    both communities, producing 221 qualifying frames. Rates were normalised by the
+    number of sentences per subreddit: 4,849 for r/depression and 1,806 for r/SuicideWatch.
+    """)
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        st.markdown("""
+        <div style='background-color:#FFF0F0;padding:20px;border-radius:8px;
+                    border-left:4px solid #D9534F'>
+          <h4 style='margin:0 0 14px 0;color:#2C3E50'>Most distinctive to r/SuicideWatch</h4>
+          <table style='width:100%;font-size:0.85em;color:#444;border-collapse:collapse'>
+            <tr style='border-bottom:1px solid #ddd'>
+              <th style='text-align:left;padding:4px 8px'>Frame</th>
+              <th style='text-align:right;padding:4px 8px'>Ratio</th>
+            </tr>
+            <tr><td style='padding:4px 8px'>Addiction</td><td style='text-align:right;padding:4px 8px'>4.47x</td></tr>
+            <tr><td style='padding:4px 8px'>Rape</td><td style='text-align:right;padding:4px 8px'>3.13x</td></tr>
+            <tr><td style='padding:4px 8px'>Transition_to_a_quality</td><td style='text-align:right;padding:4px 8px'>3.07x</td></tr>
+            <tr><td style='padding:4px 8px'>Intoxication</td><td style='text-align:right;padding:4px 8px'>2.89x</td></tr>
+            <tr><td style='padding:4px 8px'>Killing</td><td style='text-align:right;padding:4px 8px'>2.85x</td></tr>
+            <tr><td style='padding:4px 8px'>Cause_to_end</td><td style='text-align:right;padding:4px 8px'>2.86x</td></tr>
+            <tr><td style='padding:4px 8px'>Dead_or_alive</td><td style='text-align:right;padding:4px 8px'>2.59x</td></tr>
+            <tr><td style='padding:4px 8px'>Surviving</td><td style='text-align:right;padding:4px 8px'>2.68x</td></tr>
+          </table>
+          <p style='color:#666;font-size:0.82em;margin:12px 0 0 0;font-style:italic'>
+            Action and mortality-oriented. Death, substance use, and harm are
+            framed as concrete acts with agents and outcomes.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col2:
+        st.markdown("""
+        <div style='background-color:#EBF5FB;padding:20px;border-radius:8px;
+                    border-left:4px solid #4A90D9'>
+          <h4 style='margin:0 0 14px 0;color:#2C3E50'>Most distinctive to r/depression</h4>
+          <table style='width:100%;font-size:0.85em;color:#444;border-collapse:collapse'>
+            <tr style='border-bottom:1px solid #ddd'>
+              <th style='text-align:left;padding:4px 8px'>Frame</th>
+              <th style='text-align:right;padding:4px 8px'>Ratio</th>
+            </tr>
+            <tr><td style='padding:4px 8px'>Questioning</td><td style='text-align:right;padding:4px 8px'>3.87x</td></tr>
+            <tr><td style='padding:4px 8px'>Memory</td><td style='text-align:right;padding:4px 8px'>2.06x</td></tr>
+            <tr><td style='padding:4px 8px'>Prevarication</td><td style='text-align:right;padding:4px 8px'>2.01x</td></tr>
+            <tr><td style='padding:4px 8px'>Medical_professionals</td><td style='text-align:right;padding:4px 8px'>1.86x</td></tr>
+            <tr><td style='padding:4px 8px'>Discussion</td><td style='text-align:right;padding:4px 8px'>1.78x</td></tr>
+            <tr><td style='padding:4px 8px'>Waking_up</td><td style='text-align:right;padding:4px 8px'>1.73x</td></tr>
+            <tr><td style='padding:4px 8px'>Resolve_problem</td><td style='text-align:right;padding:4px 8px'>1.64x</td></tr>
+            <tr><td style='padding:4px 8px'>Purpose</td><td style='text-align:right;padding:4px 8px'>1.69x</td></tr>
+          </table>
+          <p style='color:#666;font-size:0.82em;margin:12px 0 0 0;font-style:italic'>
+            Reflective and deliberative. Suffering is framed as a problem to
+            be understood, articulated, and addressed.
+          </p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    st.markdown("""
+    The pattern is striking. r/SuicideWatch posts are disproportionately organised around
+    frames in which death, harm, and substance use are concrete acts: Killing, Cause_to_end,
+    Dead_or_alive, Intoxication, Addiction. r/depression posts are disproportionately
+    organised around deliberative and reflective frames: Questioning, Memory, Discussion,
+    Resolve_problem, Medical_professionals. Both communities are expressing suffering and
+    hopelessness. They are framing that suffering in fundamentally different ways.
+
+    The presence of Addiction and Intoxication as highly distinctive r/SuicideWatch frames
+    is also consistent with the Joiner literature. Substance use is one of the primary
+    pathways through which acquired capability develops: repeated intoxication habituates
+    a person to physiological states that resemble and lower the threshold for self-harm.
+    The elevated rate of Addiction and Intoxication framing in r/SuicideWatch is therefore
+    not only a demographic observation about who posts there but a signal consistent with
+    the neurobiological pathway Joiner identifies.
+    """)
+
+    st.divider()
+
+    # ---- Clinical frames ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Clinically Relevant Frames</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The analysis also searched for FrameNet frames theoretically linked to the clinical
+    constructs of Beck (1979), Joiner (2005), Shneidman (1993), and Pennebaker (2011).
+    Of 35 candidate frames across five theoretical clusters, 25 were detected in the corpus.
+    The ten not detected reflect either FrameNet coverage gaps for colloquial mental health
+    language or the absence of formal expressions of those constructs in Reddit discourse.
+
+    Several findings from the clinical frame detection are notable. Within the Hopelessness
+    cluster, the Desiring frame is the most frequent and shows its highest rate in
+    r/depression, consistent with depression as a state of unfulfilled desire for a
+    different life rather than a desire for death. Within the Suffering cluster, the
+    Cause_harm frame is elevated in r/SuicideWatch relative to r/depression even after
+    normalising for subreddit size, consistent with Shneidman's psychache as a state in
+    which harm is not merely experienced but actively engaged with. Within the Belonging
+    cluster, Personal_relationship frames are most frequent in r/depression rather than
+    r/SuicideWatch, which is counter to the simple prediction from Joiner's thwarted
+    belongingness construct: depression posts discuss relationships more, not less.
+    This may reflect the deliberative character of r/depression posts noted above,
+    in which relational problems are discussed as part of a narrative of seeking help
+    and understanding.
+    """)
+
+    st.divider()
+
+    # ---- Limitations ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Limitations of This Method</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    Frame semantic analysis introduces several limitations that do not apply to the
+    earlier methods in this analysis.
+
+    The frame-semantic-transformer was trained on formal and semi-formal text. Reddit
+    posts are colloquial, orthographically variable, and frequently use slang, profanity,
+    and abbreviated language that may not match the training distribution. The 4.4%
+    no-detection rate likely understates the coverage gap, since the model may assign
+    incorrect frames to colloquial constructions rather than returning null results.
+
+    FrameNet is organised around English-language constructions and the cultural assumptions
+    embedded in them. The frame vocabulary may not map cleanly onto all the ways mental
+    health experience is expressed in Reddit discourse, particularly for non-clinical
+    or community-specific language.
+
+    The analysis was conducted at the sentence level rather than the post level. Mental
+    health posts are extended narratives in which different parts of the same post may
+    evoke different frames. Aggregating frame counts across sentences within a subreddit
+    treats each sentence as independent, losing the narrative structure of individual posts.
+
+    Finally, frame detection rates are influenced by post length. Longer posts produce
+    more frame detections simply by containing more text, and subreddits differ in their
+    typical post length. The normalisation by sentence count rather than frame count
+    partially controls for this, but does not eliminate it.
+
+    These limitations do not undermine the central finding. The chi-square result
+    (p = 0.0001) is robust to moderate measurement noise. But they do mean that the
+    specific frame rates reported here should be treated as indicative rather than
+    precise, and that replication with a domain-specific frame parser trained on mental
+    health discourse would strengthen the conclusions considerably.
+    """)
+
+    st.divider()
+
+    # ---- Closing panel ----
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
+      <h2 style='color:white;margin:0 0 14px 0'>What Frame Analysis Contributes</h2>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        Frame semantic analysis is the sixth and most theoretically ambitious method
+        applied in this analysis. It is also the one that most directly addresses the
+        open question left by the sentence embedding finding: not whether depressive
+        and suicidal discourse share the same content, they do, but whether they
+        organise that content through different cognitive frames.
+      </p>
+      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
+        The answer is yes, and the pattern of differences is consistent with Joiner's
+        (2005) acquired capability construct. r/SuicideWatch posts frame experience
+        through action and mortality. r/depression posts frame experience through
+        reflection and deliberation. This distinction is invisible to TF-IDF, to VAD
+        scoring, to sentence embeddings, and to topic modelling. It requires a method
+        that encodes cognitive framing rather than lexical distinctiveness, affective
+        tone, semantic content, or thematic cluster membership.
+      </p>
+      <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
+        The methodological implication extends beyond this analysis. Multi-method NLP
+        research on mental health discourse should include frame-level analysis alongside
+        semantic and lexical methods. The representational choice shapes what is visible.
+        No single method reveals the full structure of how mental health experience is
+        expressed in language, and frame semantics reveals a dimension of that structure
+        that the other methods in this analysis cannot reach.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+# ============================================================
+# VIEW: BUILDING THE FRAME ANALYSIS
+# ============================================================
+
+elif active_tab == "🛠️ Building the Frame Analysis":
+
+    st.markdown("""
+    <div style='background-color:#2C3E50;padding:28px 30px;border-radius:8px;margin-bottom:24px'>
+      <h1 style='color:white;margin:0 0 10px 0'>Building the Frame Analysis</h1>
+      <p style='color:#BDC3C7;margin:0;line-height:1.7'>
+        How the frame semantic analysis was built, what technical problems had to be
+        solved, and why the pipeline was designed the way it was.
+      </p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # ---- Why a separate environment ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Why a Separate Environment?</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The frame-semantic-transformer library cannot run in the same environment as the
+    main analysis notebook. It requires specific older versions of tokenizers and
+    transformers that conflict with the sentence-transformers and BERTopic dependencies
+    used throughout the rest of this project. This is the same class of dependency
+    conflict that made it impossible to run BERTopic live inside the Streamlit app,
+    and the solution follows the same logic: move the expensive computation to a
+    separate environment, run it once, and serialise the outputs.
+
+    The frame-semantic-transformer also requires Rust to be installed before the
+    tokenizers package can be compiled. Rust is not available in a standard Python
+    environment and must be installed as a first step. In the main Colab notebook
+    this would have caused problems with other dependencies. Running it separately
+    kept the main analysis environment stable.
+
+    Google Colab was chosen for the frame analysis for three reasons. First, Colab
+    provides a clean environment where dependency installation does not affect any
+    other project. Second, Colab offers free GPU access, and the frame-semantic-transformer
+    runs substantially faster on CUDA than on CPU. Third, Colab's file download
+    functionality made it straightforward to export the results pickle directly to
+    the local machine without configuring any storage or transfer infrastructure.
+    """)
+
+    st.divider()
+
+    # ---- The pipeline ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Pipeline</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The pipeline was designed around one practical constraint: the frame-semantic-transformer
+    is slow, and Google Colab sessions disconnect without warning. Processing 13,075 sentences
+    sequentially with no checkpointing would mean losing all progress if the session dropped.
+    The solution was to save a checkpoint pickle every ten sentences and implement resume logic
+    at startup, so that any disconnection could be recovered from without restarting the full
+    run.
+
+    The pipeline runs in seven steps.
+    """)
+
+    steps = [
+        ("Step 1: Check for Rust",
+         "#9B59B6",
+         "The tokenizers library, which the frame-semantic-transformer depends on, requires "
+         "Rust to compile its native extensions. The pipeline checks whether Rust is already "
+         "installed at /root/.cargo/bin/rustc and installs it via rustup if not. The Rust "
+         "binary directory is then added to the PATH environment variable so subsequent "
+         "commands can find it."),
+        ("Step 2: Install packages",
+         "#9B59B6",
+         "Three packages are installed in a specific version-pinned order: tokenizers 0.13.3, "
+         "transformers 4.30.0, and then frame-semantic-transformer. The version pinning is "
+         "essential. Later versions of tokenizers and transformers introduce API changes that "
+         "break the frame-semantic-transformer. The pipeline checks whether the library is "
+         "already importable before installing, so re-running the cell in an existing session "
+         "skips the installation step."),
+        ("Step 3: Import libraries",
+         "#9B59B6",
+         "pandas, pickle, torch, and FrameSemanticTransformer are imported. The torch import "
+         "is needed to detect whether a GPU is available before loading the model."),
+        ("Step 4: Load sentences",
+         "#9B59B6",
+         "The labelled_sentences.csv file is read into a dataframe and the sentence column "
+         "is extracted as a list. This file contains 13,075 sentences from the 800 "
+         "expert-annotated RMHD posts, with subreddit and root cause label columns retained "
+         "for the downstream analysis."),
+        ("Step 5: Check for existing progress",
+         "#9B59B6",
+         "If a checkpoint pickle exists from a previous run, it is loaded and the starting "
+         "index is set to the length of the existing results list. This means a disconnected "
+         "session resumes from the last checkpoint rather than starting over. If no checkpoint "
+         "exists, an empty list is initialised and processing starts from index zero."),
+        ("Step 6: Load the model",
+         "#9B59B6",
+         "The FrameSemanticTransformer model is loaded. The pipeline detects whether a CUDA "
+         "GPU is available and prints the device being used. On Colab with a GPU runtime the "
+         "model loads onto CUDA automatically, producing substantially faster inference than "
+         "CPU processing."),
+        ("Step 7: Run frame detection",
+         "#9B59B6",
+         "Each sentence is passed to frame_transformer.detect_frames(). The result is a "
+         "DetectFramesResult object containing the sentence text, the trigger locations, and "
+         "a list of FrameResult objects each with a frame name and a list of FrameElementResult "
+         "objects. Errors are caught and stored as None rather than crashing the loop. A "
+         "checkpoint is saved every ten sentences. After the loop completes, a final save "
+         "is written and the pickle is downloaded to the local machine via the Colab files API."),
+    ]
+
+    for title, colour, body in steps:
+        st.markdown(f"""
+        <div style='background-color:#F8F9FA;padding:18px;border-radius:6px;
+                    border-left:4px solid {colour};margin-bottom:12px'>
+          <h4 style='margin:0 0 8px 0;color:#2C3E50'>{title}</h4>
+          <p style='margin:0;color:#444;line-height:1.7;font-size:0.95em'>{body}</p>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # ---- The code ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>The Code</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("The complete pipeline as run in Google Colab:")
+
+    st.code("""
+import importlib.util
+import os
+import subprocess
+from tqdm.notebook import tqdm
+
+print("Step 1/7: Checking Rust...")
+if not os.path.exists('/root/.cargo/bin/rustc'):
+    subprocess.run('curl --proto =https --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y',
+                   shell=True)
+    print("✓ Rust installed")
+else:
+    print("✓ Rust already present")
+os.environ['PATH'] += ':/root/.cargo/bin'
+
+print("\\nStep 2/7: Checking packages...")
+if importlib.util.find_spec('frame_semantic_transformer') is None:
+    for pkg, label in tqdm([
+        ('tokenizers==0.13.3', 'tokenizers'),
+        ('transformers==4.30.0', 'transformers'),
+        ('frame-semantic-transformer', 'frame-semantic-transformer')
+    ], desc="Installing packages"):
+        subprocess.run(['pip', 'install', pkg, '-q'])
+    print("✓ All packages installed")
+else:
+    print("✓ Already installed, skipping")
+
+print("\\nStep 3/7: Importing libraries...")
+import pandas as pd
+import pickle
+import torch
+from frame_semantic_transformer import FrameSemanticTransformer
+print("✓ Imports done")
+
+print("\\nStep 4/7: Loading sentences...")
+sentences_labelled_df = pd.read_csv('labelled_sentences.csv')
+sentence_texts = sentences_labelled_df['sentence'].tolist()
+print(f"✓ Loaded {len(sentence_texts)} sentences")
+
+print("\\nStep 5/7: Checking for existing progress...")
+PICKLE_PATH = 'fst_labelled_results.pkl'
+if os.path.exists(PICKLE_PATH):
+    with open(PICKLE_PATH, 'rb') as f:
+        fst_results = pickle.load(f)
+    start_idx = len(fst_results)
+    print(f"✓ Resuming from {start_idx}/{len(sentence_texts)}")
+else:
+    fst_results = []
+    start_idx = 0
+    print("✓ Starting fresh")
+
+print("\\nStep 6/7: Loading model...")
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+print(f"✓ Using: {device}")
+frame_transformer = FrameSemanticTransformer()
+print("✓ Model loaded")
+
+print("\\nStep 7/7: Running FST...")
+for i in tqdm(range(start_idx, len(sentence_texts)),
+              desc="FST progress", unit="sentence"):
+    try:
+        result = frame_transformer.detect_frames(sentence_texts[i])
+        fst_results.append(result)
+    except Exception as e:
+        print(f"Error at {i}: {e}")
+        fst_results.append(None)
+
+    if i % 10 == 0:
+        with open(PICKLE_PATH, 'wb') as f:
+            pickle.dump(fst_results, f)
+
+with open(PICKLE_PATH, 'wb') as f:
+    pickle.dump(fst_results, f)
+print(f"✓ Done. {len(fst_results)} results saved.")
+
+print("\\nDownloading pickle...")
+from google.colab import files
+files.download('fst_labelled_results.pkl')
+print("✓ Download started")
+""", language="python")
+
+    st.divider()
+
+    # ---- Output format ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #9B59B6;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>Output Format</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    The pipeline produces a pickle file containing a list of DetectFramesResult objects,
+    one per input sentence, in the same order as the input CSV. Each object has the
+    following structure:
+    """)
+
+    st.code("""
+DetectFramesResult(
+    sentence='Do people get over anxiety?',
+    trigger_locations=[10],
+    frames=[
+        FrameResult(
+            name='Transition_to_state',
+            trigger_location=10,
+            frame_elements=[
+                FrameElementResult(name='Entity',        text='people'),
+                FrameElementResult(name='Final_quality', text='over anxiety')
+            ]
+        )
+    ]
+)
+""", language="python")
+
+    st.markdown("""
+    For the downstream analysis, each result object was flattened into one row per frame
+    detection, with the subreddit and root cause label joined from the source CSV by
+    sentence index. This produced a dataframe of 52,457 frame detections across 13,075
+    sentences, with 573 sentences (4.4%) returning no detected frames.
+    """)
+
+    st.divider()
+
+    # ---- What I would do differently ----
+    st.markdown("""
+    <div style='background-color:#F0F4F8;padding:20px 24px;border-left:4px solid #E8A838;
+                border-radius:4px;margin-bottom:20px'>
+      <h2 style='margin:0 0 4px 0;color:#2C3E50'>What I Would Do Differently</h2>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    **Run on GPU from the start.** The first attempt ran on CPU before a GPU runtime
+    was available. Processing 13,075 sentences on CPU is significantly slower than on
+    CUDA. Connecting a GPU runtime before running the pipeline would have saved
+    substantial time.
+
+    **Checkpoint more frequently.** Saving every ten sentences means at most ten
+    sentences are lost on disconnection. In practice, Colab sessions tend to disconnect
+    during long idle periods rather than mid-run, so this was sufficient. A more
+    cautious approach would checkpoint every sentence at the cost of slightly slower
+    I/O.
+
+    **Integrate sentence tokenisation into the pipeline.** The labelled_sentences.csv
+    was produced in a separate step before the Colab pipeline was run. Integrating
+    the sentence tokenisation into the pipeline would have made the full process
+    reproducible from a single script rather than requiring a pre-processed input file.
+
+    **Use a domain-specific frame parser.** The frame-semantic-transformer was trained
+    on formal and semi-formal text. A parser fine-tuned on social media or clinical
+    mental health text would likely produce better coverage and more accurate frame
+    assignments for Reddit posts. This is the single most valuable extension of this
+    analysis from a methodological standpoint.
     """)
 
     st.divider()
 
     st.markdown("""
     <div style='background-color:#2C3E50;padding:28px;border-radius:8px'>
-      <h2 style='color:white;margin:0 0 14px 0'>The Contribution of This Analysis</h2>
+      <h2 style='color:white;margin:0 0 14px 0'>What This Process Demonstrates</h2>
       <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
-        This analysis does not resolve the clinical debate about the relationship
-        between depression and suicidal ideation. That debate has been ongoing for
-        decades and will not be settled by NLP evidence from Reddit posts.
-      </p>
-      <p style='color:#BDC3C7;line-height:1.7;margin:0 0 12px 0'>
-        What it contributes is a large-scale, longitudinally stable, computationally
-        rigorous demonstration that the language of these two communities is nearly
-        indistinguishable — a finding that is consistent with the phenomenological
-        overlap described by Beck, Joiner, and others, and that has direct practical
-        implications for anyone building NLP systems for mental health monitoring.
+        The frame analysis required building a second, entirely separate computational
+        pipeline in a different environment, solving a different set of dependency
+        conflicts, and designing for resilience against session interruption. This is
+        the practical reality of combining NLP methods that have incompatible dependency
+        trees: each method may require its own environment, and the outputs must be
+        serialised and transferred between them.
       </p>
       <p style='color:white;line-height:1.7;margin:0;font-weight:500'>
-        The 0.954 figure is not a number to be explained away. It is a number that
-        reflects something true about human suffering — that the line between
-        depression and suicidal crisis is not a clear boundary but a continuum,
-        and that language, which expresses experience rather than clinical categories,
-        does not respect the distinctions that diagnostic systems impose.
+        The checkpoint-and-resume pattern used here is a general solution to this
+        problem. Any long-running inference task in a session-limited environment
+        should save progress incrementally and implement resume logic. The cost is
+        a small amount of additional I/O per checkpoint. The benefit is that no
+        work is lost to disconnection regardless of how long the task takes.
       </p>
     </div>
     """, unsafe_allow_html=True)
